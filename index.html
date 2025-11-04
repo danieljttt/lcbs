@@ -622,6 +622,7 @@ function computeOdds(m){
 function matchBetsOpen(m){ const now=Date.now(); const deadline = m.deadline || get(STORE.settings,{betsCloseAt:0}).betsCloseAt || 0; return !deadline || now<=deadline; }
 function ensureLogged(){ if(!currentUser()){ alert('Vispirms ieejiet'); return false } return true }
 function renderBets(){
+  if (!Array.isArray(matches)) matches = matches?.data || [];
   const s=get(STORE.settings,{betsCloseAt:0}); document.getElementById('betsDeadline').textContent = fmt(s.betsCloseAt);
   const u=getUserObj();
   document.getElementById('balanceRow').innerHTML = u? `<span class="badge">Bilance likmēm: <b>${u.balanceBets??100}</b> kr</span>` : '<span class="muted">Ieiet, lai redzētu bilanci.</span>';
