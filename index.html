@@ -553,6 +553,7 @@ document.getElementById('warnConfirm').addEventListener('click',()=>{
 function triggerRosterWarning(){ warnBackdrop.style.display='flex'; warnCard.classList.remove('shake'); void warnCard.offsetWidth; warnCard.classList.add('shake'); }
 
 function renderProfile(){
+  if (!Array.isArray(users)) users = users?.data || [];
   const box=document.getElementById('authBox'); const prof=document.getElementById('profileBox'); const u=getUserObj();
   if(!u){
     box.innerHTML=`<input id="regUser" placeholder="Lietotājvārds"><input id="regPass" type="password" placeholder="Parole"><button class="btn" onclick="registerUser()">Reģistrēties</button><button class="btn" onclick="login()">Ieiet</button>`;
