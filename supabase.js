@@ -2,7 +2,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // === Your Supabase project (URL fixed, insert your anon key) ===
 const SUPABASE_URL = "https://vikcpipfrniiqiblvdkw.supabase.co";
-const SUPABASE_KEY = "<<< ВСТАВЬ СВОЙ ANON PUBLIC KEY ЗДЕСЬ >>>";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpa2NwaXBmcm5paXFpYmx2ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNjA4OTIsImV4cCI6MjA3NzgzNjg5Mn0.KpwDxvJBvehz-61ziDDuEo-c8OWmZLQyD5bL5iORfFQ";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
