@@ -777,6 +777,7 @@ function renderAdmin(){
 }
 function recalcAllPlayerPoints(){ const all=get(STORE.players,[]); all.forEach(p=>{ p.points=(p.kills||0)*2 + (p.mvp||0)*3 - (p.deaths||0); }); set(STORE.players,all); alert('Punkti pārrēķināti'); renderFantasy(); renderProfile(); renderLeaders(); }
 function renderAdminMatches(){
+  if (!Array.isArray(M)) M = M.data || [];
   const M=loadMatches();
   const rows=M.map(m=>{
     const state=m.open? 'Atvērts' : ('Slēgts, uzvarētājs: '+(m.winner||'-'));
