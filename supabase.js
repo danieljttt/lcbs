@@ -62,3 +62,11 @@ export async function placeBetDB(user_id, match_id, side, amount){
   const next = (m?.[field]||0) + amount;
   await supabase.from('matches').update({ [field]: next }).eq('id', match_id);
 }
+// ===== Вспомогательная функция =====
+export function getCurrentUser(){
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  } catch(e){
+    return null;
+  }
+}
