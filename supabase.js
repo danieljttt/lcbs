@@ -70,3 +70,40 @@ export function getCurrentUser(){
     return null;
   }
 }
+// ===== TEAMS =====
+
+// Добавить команду
+export async function addTeam(name, file) {
+  let logo_url = null;
+
+  if (file) {
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data, error: uploadError } = await supabase.storage
+      .from('team-logos')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      alert("Ошибка загрузки логотипа: " + uploadError.message);
+      return;
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from('team-logos')
+      .getPublicUrl(fileName);
+    logo_url = publicUrl.publicUrl;
+  }
+
+  const { error } = await supabase.from('teams').insert([{ name, logo_url }]);
+  if (error) alert("Ошибка добавления команды: " + error.message);
+  else alert("✅ Команда добавлена!");
+}
+
+// Получить список команд
+export async function loadTeams() {
+  const { data, error } = await supabase.from('teams').select('*').order('name');
+  if (error) {
+    console.error("Ошибка загрузки команд:", error);
+    return [];
+  }
+  return data || [];
+}
