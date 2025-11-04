@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Little Community Becomes Something — Fantasy CS 3x3</title>
+<style>
+:root{
+  --bg:#e9f6ec; --text:#122617; --muted:#4a6b50; --line:#cfe7d6; --accent:#4CAF50;
+  --skeuo-surface: radial-gradient(60% 80% at 50% 0%, rgba(255,255,255,.9), rgba(233,246,236,.8)), linear-gradient(180deg,#f5fcf7,#eef9f1);
+  --skeuo-metal: linear-gradient(180deg,#ecfbf0,#dcf4e3);
+  --ring: 0 0 0 3px rgba(76,175,80,.18);
+  --tier1:#2e7d32; --tier2:#66bb6a; --tier3:#a5d6a7;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1412; --text:#e9f6ec; --muted:#9bc5a5; --line:#1e2a24; --accent:#7fd487;
+    --skeuo-surface: radial-gradient(60% 80% at 50% 0%, rgba(40,60,45,.5), rgba(12,18,14,.9)), linear-gradient(180deg,#121a15,#0e150f);
+    --skeuo-metal: linear-gradient(180deg,#121a15,#0e150f);
+  }
+}
+*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+.container{max-width:1100px;margin:0 auto;padding:14px} .hidden{display:none!important} main{padding-bottom:120px}
+.brand{margin:10px 0;padding:14px;border-radius:18px;background:var(--skeuo-surface);border:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.card{background:var(--skeuo-surface);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 15px 30px rgba(0,0,0,.06) inset}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.3))}
+.muted{color:var(--muted)}
+input,select,textarea{width:100%;border-radius:14px;border:1px solid var(--line);padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.35));color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:12px 14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.3));cursor:pointer;font-weight:800;min-height:44px}
+.btn:hover{box-shadow:var(--ring);transform:translateY(-1px)} .btn.danger{border-color:#e57373;background:linear-gradient(180deg,#ffd9d9,#ffd3d3)}
+.table-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+.table{width:100%;min-width:640px;border-collapse:separate;border-spacing:0 10px}
+.table th{text-align:left;color:var(--muted);padding:6px 8px;white-space:nowrap}
+.table td{padding:12px 8px;background:rgba(255,255,255,.45);border:1px solid var(--line)}
+.table tr td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
+.table tr td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
+.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:100;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px 12px calc(env(safe-area-inset-bottom,0)+10px);background:var(--skeuo-metal);border-top:1px solid var(--line)}
+.bottom-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.25));font-size:12px;min-height:58px}
+.bottom-item.active{border-color:var(--accent);color:var(--accent);box-shadow:var(--ring)}
+.bottom-plus{transform:translateY(-14px)}
+#plusMenuBackdrop{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.25);backdrop-filter:blur(6px);z-index:110}
+#plusMenu{width:min(720px,96vw);margin:0 0 calc(env(safe-area-inset-bottom,0)+12px);padding:14px;border-radius:18px;background:var(--skeuo-surface);border:1px solid var(--line)}
+.plus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.plus-btn{text-align:center;padding:12px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.25));font-weight:800;cursor:pointer}
+.view{opacity:0;transform:translateY(8px);transition:opacity .28s, transform .28s} .view.active{opacity:1;transform:translateY(0)}
+/* tiers */
+.tier-border-1{border:2px solid var(--tier1)} .tier-border-2{border:2px solid var(--tier2)} .tier-border-3{border:2px solid var(--tier3)}
+/* Toast */
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0) + 90px);transform:translateX(-50%);background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.6));border:1px solid var(--line);padding:10px 14px;border-radius:14px;display:none;z-index:9999;font-weight:800}
+#toast.show{display:block;animation:toastin .25s ease, toastout .25s ease 2.25s forwards}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes toastout{to{opacity:0;transform:translate(-50%,10px)}}
+</style>
+</head>
+<body>
+<header class="container"><div class="brand"><span>🎯</span><b>Little Community Becomes Something</b></div></header>
+
+<main class="container" id="app-root">
+  <section id="view-home" class="view active">
+    <div class="card">
+      <h1>Sākums</h1>
+      <div id="homeAuth" class="row"></div>
+      <hr><div id="homeSummary"></div>
+    </div>
+  </section>
+
+  <section id="view-players" class="view hidden">
+    <div class="card">
+      <h1>Fentēzi — tirgus</h1><p class="muted" id="transferStatus">—</p>
+      <div class="row" id="slots"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h2>Spēlētāji — statistika</h2>
+      <div class="table-wrap"><div id="playersTable"></div></div>
+    </div>
+  </section>
+
+  <section id="view-team" class="view hidden">
+    <div class="card">
+      <h1>Mans profils</h1>
+      <div id="authBox" class="row"></div>
+      <div id="profileBox" class="hidden">
+        <h2 style="margin:0">Mana komanda</h2>
+        <div id="myTeam"></div>
+        <p class="muted" style="margin-top:6px">Fantasy budžets: <b id="budgetFantasy">10</b> kr</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-leaderboard" class="view hidden">
+    <div class="card">
+      <h1>Līderi — Fantasy ar komandu</h1>
+      <div class="table-wrap"><div id="leadersTable"></div></div>
+    </div>
+  </section>
+
+  <section id="view-bets" class="view hidden">
+    <div class="card">
+      <h1>Likmes</h1>
+      <div class="table-wrap"><div id="betCards"></div></div>
+    </div>
+  </section>
+
+  <section id="view-admin" class="view hidden">
+    <div class="card">
+      <h1>Admin panelis</h1>
+      <div class="table-wrap"><div id="playersEdit"></div></div>
+    </div>
+  </section>
+</main>
+
+<div class="bottom-bar">
+  <div class="bottom-item" data-route="home"><div>🏠</div><div>Sākums</div></div>
+  <div class="bottom-item" data-route="team"><div>👤</div><div>Profils</div></div>
+  <div class="bottom-item" data-route="players"><div>🎮</div><div>Fentēzi</div></div>
+  <div class="bottom-item" data-route="bets"><div>💰</div><div>Likmes</div></div>
+  <div class="bottom-item bottom-plus" id="plusBtn"><div>＋</div><div>Vairāk</div></div>
+</div>
+
+<div id="plusMenuBackdrop" role="dialog" aria-modal="true">
+  <div id="plusMenu" class="card">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <h2>Sadaļas</h2><button class="btn" id="closePlus">Aizvērt</button>
+    </div>
+    <div class="plus-grid" id="plusGrid"></div>
+  </div>
+</div>
+
+<div id="pickerBackdrop" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200">
+  <div class="card" style="width:min(1000px,96vw);max-height:86vh;overflow:auto">
+    <div class="row" style="justify-content:space-between;align-items:center"><h2>Izvēlies spēlētāju</h2><button class="btn" onclick="closePicker()">✕</button></div>
+    <div class="row"><select id="tierFilter" style="max-width:220px"><option value="">Visi Tiers</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option></select><input id="searchPlayer" placeholder="Meklēt spēlētāju/komandu" style="flex:1;min-width:220px"></div>
+    <div id="pickerList" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="toast">✅ Kredīti atgriezti</div>
+
+<script>
+const STORE={players:'fcsl_players',users:'fcsl_users',currentUser:'fcsl_currentUser'};
+function get(k,d){try{return JSON.parse(localStorage.getItem(k)??JSON.stringify(d))}catch(e){return d}}
+function set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function upsertUser(u){const arr=get(STORE.users,[]);const i=arr.findIndex(x=>x.username.toLowerCase()===u.username.toLowerCase());if(i>=0)arr[i]=u;else arr.push(u);set(STORE.users,arr);return u}
+function findUser(n){return get(STORE.users,[]).find(x=>x.username.toLowerCase()===String(n||'').toLowerCase())||null}
+const TEAM_SIZE=3;
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
+</script>
+
+<script>
+(function seed(){
+  if(!get(STORE.players,[]).length){
+    const raw=[
+      ["toothfairy","Holy Priests",6,1.31,1.22,95,45],
+      ["s1me","Holy Priests",6,1.09,0.98,81,46],
+      ["Decoy","Holy Priests",6,0.77,0.66,58,40],
+      ["Kirbitch","Cotton Pickers",4,1.15,1.01,87,38],
+      ["K1rgo777","Cotton Pickers",4,1.17,1.07,81,40],
+      ["family","Cotton Pickers",4,0.93,0.82,69,47],
+      ["Wide","9/11",2,1.06,1.04,76,42],
+      ["MV","9/11",2,1.15,1.04,80,40],
+      ["CUBONS","9/11",2,0.98,0.86,76,52]
+    ].map(([username,team,price,kd,adr,hs])=>({username,team,price,kd,adr,hs,kills:0,deaths:0,mvp:0,points:0}));
+    set(STORE.players,raw);
+  }
+})();
+</script>
+
+<script>
+function currentUser(){return get(STORE.currentUser,null)}
+function upsertUserNow(o){upsertUser(o);set(STORE.currentUser,o)}
+function getUserObj(){const u=currentUser();return u?findUser(u.username):null}
+function saveUserObj(o){if(!o)return; upsertUserNow(o)}
+function registerUser(){const u=(document.getElementById('homeUser')||document.getElementById('regUser')).value.trim();const p=(document.getElementById('homePass')||document.getElementById('regPass')).value; if(!u||!p){alert('Ievadiet lietotājvārdu un paroli');return;} if(findUser(u)){alert('Šāds lietotājvārds jau pastāv');return;} const obj={username:u,password:p,team:[],budgetFantasy:10}; upsertUserNow(obj); renderAll(); show('home'); }
+function login(){const u=(document.getElementById('homeUser')||document.getElementById('regUser')).value.trim();const p=(document.getElementById('homePass')||document.getElementById('regPass')).value; const obj=findUser(u); if(!obj||obj.password!==p){alert('Nepareizs lietotājvārds vai parole');return;} set(STORE.currentUser,obj); renderAll(); show('home'); }
+function logout(){localStorage.removeItem(STORE.currentUser); renderAll(); show('home'); }
+</script>
+
+<script>
+const routes=['home','players','team','leaderboard','bets','admin'];
+function show(route){
+  routes.forEach(r=>{const el=document.getElementById('view-'+r); const on=r===route; el.classList.toggle('hidden',!on); el.classList.toggle('active',on); el.classList.add('view'); });
+  document.querySelectorAll('.bottom-item').forEach(el=>el.classList.toggle('active',el.dataset.route===route));
+  if((location.hash||'')!=='#'+route){ try{ location.hash=route; }catch(e){} }
+  if(route==='home') renderHome();
+  if(route==='players') renderFantasy();
+  if(route==='team') renderProfile();
+  if(route==='leaderboard') renderLeaders();
+  if(route==='bets') renderBets();
+  if(route==='admin') renderAdmin();
+}
+window.addEventListener('hashchange',()=>{ const r=(location.hash||'#home').slice(1); show(r||'home') });
+document.querySelectorAll('.bottom-item[data-route]').forEach(el=> el.addEventListener('click',()=> show(el.dataset.route)));
+const plusBackdrop=document.getElementById('plusMenuBackdrop');
+document.getElementById('plusBtn').addEventListener('click',()=>{ plusBackdrop.style.display='flex'; buildPlus(); });
+document.getElementById('closePlus').addEventListener('click',()=> plusBackdrop.style.display='none');
+plusBackdrop.addEventListener('click',e=>{ if(e.target===plusBackdrop) plusBackdrop.style.display='none' });
+function buildPlus(){ const grid=document.getElementById('plusGrid'); const extra=[['leaderboard','Līderi']]; grid.innerHTML=extra.map(([r,t])=>`<div class="plus-btn" data-route="${r}">${t}</div>`).join(''); grid.querySelectorAll('.plus-btn').forEach(b=> b.addEventListener('click',()=>{ plusBackdrop.style.display='none'; show(b.dataset.route); })); }
+</script>
+
+<script>
+function renderHome(){
+  const u=getUserObj(); const auth=document.getElementById('homeAuth'); const sum=document.getElementById('homeSummary');
+  if(!u){
+    auth.innerHTML = `<input id="homeUser" placeholder="Lietotājvārds"><input id="homePass" type="password" placeholder="Parole"><button class="btn" onclick="registerUser()">Reģistrēties</button><button class="btn" onclick="login()">Ieiet</button>`;
+    sum.innerHTML = `<p class="muted">Reģistrējies un izveido savu 3 spēlētāju komandu (budžets 10 kr).</p>`;
+  } else {
+    auth.innerHTML = `<span class="badge">Sveiks, <b>${u.username}</b></span> <button class="btn" onclick="show('team')">Mans profils</button><button class="btn" onclick="show('players')">Fentēzi</button><button class="btn" onclick="logout()">Iziet</button>`;
+    const team=u.team||[];
+    sum.innerHTML = `<h2>Tava Fantasy informācija</h2>
+      <div>Komanda:</div>
+      <ul>${team.map(n=>`<li>${n}</li>`).join('') || '<li class="muted">nav</li>'}</ul>
+      <div class="row" style="margin-top:6px"><span class="badge">Fantasy budžets: ${u.budgetFantasy??10} kr</span></div>`;
+  }
+}
+</script>
+
+<script>
+function isTransferLocked(){ return false } // simplified for static demo
+let playersSortKey='kills', playersSortDir='desc';
+function renderFantasy(){
+  document.getElementById('transferStatus').textContent = 'Transfēri atvērti — aizpildi 3 slotus.';
+  const slots=document.getElementById('slots'); const u=getUserObj(); const team=u?(u.team||[]):[];
+  slots.innerHTML=[0,1,2].map(i=>{
+    const filled=!!team[i];
+    return `<div class="card" style="flex:1;min-width:220px">
+      <div class="row" style="justify-content:space-between"><b>Slot ${i+1}</b>${filled?`<button class="btn" onclick="removeSlot(${i})">Noņemt</button>`:''}</div>
+      <div style="margin-top:6px">${filled? team[i] : `<button class="btn" onclick="openPicker(${i})">Izvēlēties spēlētāju</button>`}</div>
+    </div>`;
+  }).join('');
+  const all=get(STORE.players,[]).slice();
+  const rows=all.map(pl=>{
+    const tierClass = pl.price>=6?'tier-border-1':(pl.price>=4?'tier-border-2':'tier-border-3');
+    return `<tr class="${tierClass}"><td><b>${pl.username}</b></td><td>${pl.team}</td><td>${pl.kills||0}</td><td>${pl.deaths||0}</td><td>${pl.mvp||0}</td></tr>`;
+  }).join('');
+  document.getElementById('playersTable').innerHTML = `<table class="table"><thead><tr><th>Spēlētājs</th><th>Komanda</th><th>Kills</th><th>Deaths</th><th>MVP</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+let pickSlot=null;
+function openPicker(slot){ pickSlot=slot; document.getElementById('pickerBackdrop').classList.remove('hidden'); buildPicker(); }
+function closePicker(){ document.getElementById('pickerBackdrop').classList.add('hidden'); }
+function buildPicker(){
+  const p=get(STORE.players,[]); const u=getUserObj();
+  function render(q='',tier=''){
+    const filtered=p.filter(x=>(!tier|| (tier==='Tier 1'?x.price>=6:tier==='Tier 2'?x.price>=4&&x.price<6:x.price<4))&& (x.username.toLowerCase().includes(q)||x.team.toLowerCase().includes(q)));
+    const rows=filtered.map(pl=>{
+      const tier = pl.price>=6?'Tier 1':(pl.price>=4?'Tier 2':'Tier 3');
+      return `<tr><td><b>${pl.username}</b></td><td>${pl.team}</td><td>${tier}</td><td>${pl.price}</td><td><button class="btn" onclick='confirmBuy("${pl.username}")'>Pirkt</button></td></tr>`;
+    }).join('');
+    document.getElementById('pickerList').innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Vārds</th><th>Komanda</th><th>Tier</th><th>Cena</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  document.getElementById('tierFilter').onchange=(e)=>render((document.getElementById('searchPlayer').value||'').toLowerCase(), e.target.value);
+  document.getElementById('searchPlayer').oninput=(e)=>render((e.target.value||'').toLowerCase(), document.getElementById('tierFilter').value);
+  render();
+}
+function confirmBuy(name){
+  const u=getUserObj(); if(!u){alert('Vispirms ieejiet');return;}
+  const p=get(STORE.players,[]).find(x=>x.username===name); if(!p){alert('Nav atrasts');return;}
+  const team=u.team||[];
+  if(team.includes(name)){alert('Jau ir komandā');return;}
+  if(team.length>=TEAM_SIZE && (pickSlot==null || pickSlot>=TEAM_SIZE || !team[pickSlot])){ alert('Komanda jau pilna'); return; }
+  if((u.budgetFantasy??10) < p.price){ alert('Nepietiek budžets (Fantasy)'); return; }
+  if(pickSlot!=null && pickSlot<TEAM_SIZE){ team[pickSlot]=name; } else { let placed=false; for(let i=0;i<TEAM_SIZE;i++){ if(!team[i]){ team[i]=name; placed=true; break; } } if(!placed) team.push(name); }
+  u.team=team; u.budgetFantasy=(u.budgetFantasy??10)-p.price; saveUserObj(u);
+  closePicker(); renderFantasy(); renderProfile(); renderHome();
+}
+function removeSlot(i){
+  const u=getUserObj(); if(!u)return; const t=u.team||[]; const removed=t[i]; if(!removed){return;}
+  const p=get(STORE.players,[]).find(x=>x.username===removed); if(p){ u.budgetFantasy=(u.budgetFantasy??10)+p.price; }
+  t.splice(i,1); u.team=t; saveUserObj(u); showToast('✅ Kredīti atgriezti'); renderFantasy(); renderProfile(); renderHome();
+}
+</script>
+
+<script>
+function renderProfile(){
+  const box=document.getElementById('authBox'); const prof=document.getElementById('profileBox'); const u=getUserObj();
+  if(!u){
+    box.innerHTML=`<input id="regUser" placeholder="Lietotājvārds"><input id="regPass" type="password" placeholder="Parole"><button class="btn" onclick="registerUser()">Reģistrēties</button><button class="btn" onclick="login()">Ieiet</button>`;
+    prof.classList.add('hidden');
+  } else {
+    box.innerHTML=`<span class="badge">Pieslēdzies kā <b>${u.username}</b></span> <button class="btn" onclick="logout()">Iziet</button>`;
+    prof.classList.remove('hidden');
+    const team=u.team||[]; document.getElementById('budgetFantasy').textContent=u.budgetFantasy??10;
+    document.getElementById('myTeam').innerHTML = team.length? team.map(n=>`<div class="row" style="justify-content:space-between"><b>${n}</b><span class="muted">0 p.</span></div>`).join('<hr>') : '<p class="muted">Komanda nav izvēlēta.</p>';
+  }
+}
+function renderLeaders(){ document.getElementById('leadersTable').innerHTML = '<p class="muted">Līderu tabula tiks pievienota.</p>'; }
+function renderBets(){ document.getElementById('betCards').innerHTML = '<p class="muted">Likmes tiks pievienotas.</p>'; }
+function renderAdmin(){
+  const p=get(STORE.players,[]);
+  const rows=p.map(pl=>`<tr><td>${pl.username}</td><td>${pl.team}</td><td>${pl.price}</td><td><input type="number" value="${pl.kills||0}" min="0" data-u="${pl.username}" data-f="kills"></td><td><input type="number" value="${pl.deaths||0}" min="0" data-u="${pl.username}" data-f="deaths"></td><td><input type="number" value="${pl.mvp||0}" min="0" data-u="${pl.username}" data-f="mvp"></td></tr>`).join('');
+  document.getElementById('playersEdit').innerHTML = `<table class="table"><thead><tr><th>Spēlētājs</th><th>Komanda</th><th>Cena</th><th>Kills</th><th>Deaths</th><th>MVP</th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.querySelectorAll('#playersEdit [data-u]').forEach(inp=>{
+    inp.addEventListener('input',()=>{ const u=inp.dataset.u, f=inp.dataset.f, v=parseInt(inp.value||'0',10); const all=get(STORE.players,[]); const i=all.findIndex(x=>x.username===u); if(i>=0){ all[i][f]=v; all[i].points=(all[i].kills||0)*2 + (all[i].mvp||0)*3 - (all[i].deaths||0); set(STORE.players,all); renderFantasy(); renderProfile(); } });
+  });
+}
+</script>
+
+<script>
+function renderAll(){ renderHome(); renderFantasy(); renderProfile(); renderLeaders(); renderBets(); }
+(function start(){
+  const initial=(location.hash||'#home').slice(1) || 'home';
+  show(initial);
+  renderAll();
+})();
+</script>
+</body>
+</html>
