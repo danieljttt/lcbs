@@ -993,17 +993,8 @@ document.addEventListener('click', (e)=>{
   }
 });
 </script>
-<!-- === Подключение Supabase для GitHub Pages === -->
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-// создаём глобальный объект Supabase
-window.supabase = createClient(
-  "https://vikcpipfrniiqiblvdkw.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpa2NwaXBmcm5paXFpYmx2ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNjA4OTIsImV4cCI6MjA3NzgzNjg5Mn0.KpwDxvJBvehz-61ziDDuEo-c8OWmZLQyD5bL5iORfFQ"
-);
-
-console.log("✅ Supabase подключён:", supabase);
+<!-- === Подключаем supabase.js === -->
+<script type="module" src="./supabase.js">
 </script>
 
 </body>
