@@ -999,6 +999,24 @@ document.addEventListener('click', (e)=>{
 <!-- === Подключаем supabase.js === -->
 <script type="module" src="./supabase.js">
 </script>
+<!-- === Добавление новой команды (только для админа) === -->
+<section id="team-create" class="p-4">
+  <h3>Добавить новую команду</h3>
+  <input type="text" id="teamName" placeholder="Название команды" class="border p-2 rounded w-full mb-2">
+  <input type="file" id="teamLogo" accept="image/*" class="mb-2">
+  <button onclick="handleAddTeam()" class="bg-blue-600 text-white px-4 py-2 rounded">Добавить команду</button>
+</section>
 
+<script type="module">
+  import { addTeam } from './supabase.js';
+
+  // Обработчик кнопки
+  window.handleAddTeam = async function() {
+    const name = document.getElementById('teamName').value.trim();
+    const file = document.getElementById('teamLogo').files[0];
+    if (!name) return alert("Введите название команды");
+    await addTeam(name, file);
+  };
+</script>
 </body>
 </html>
