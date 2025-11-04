@@ -1,41 +1,102 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Подключение к вашему проекту Supabase
+// === Подключение к вашему Supabase ===
 const SUPABASE_URL = "https://vikcpipfrniiqiblvdkw.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpa2NwaXBmcm5paXFpYmx2ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNjA4OTIsImV4cCI6MjA3NzgzNjg5Mn0.KpwDxvJBvehz-61ziDDuEo-c8OWmZLQyD5bL5iORfFQ";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Читать матчи
+// === USERS ===
+export async function registerUser(username, password){
+  const { error } = await supabase.from('users').insert([{ username, password, balance: 100 }]);
+  if(error){ alert(error.message); return false; }
+  // Автовход
+  const u = await loginUser(username, password);
+  return !!u;
+}
+
+export async function loginUser(username, password){
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('username', username)
+    .eq('password', password)
+    .single();
+  if(error || !data){ alert('Nepareizs lietotājvārds vai parole'); return null; }
+  localStorage.setItem('user', JSON.stringify(data));
+  return data;
+}
+
+export function getCurrentUser(){
+  try { return JSON.parse(localStorage.getItem('user')||'null'); } catch(e){ return null; }
+}
+
+export function logoutUser(){
+  localStorage.removeItem('user');
+}
+
+export async function getUserByUsername(username){
+  const { data } = await supabase.from('users').select('*').eq('username', username).single();
+  return data;
+}
+
+export async function getUserBalance(user_id){
+  const { data, error } = await supabase.from('users').select('balance').eq('id', user_id).single();
+  if(error) return 0;
+  return data.balance ?? 0;
+}
+
+// === MATCHES ===
 export async function loadMatchesDB(){
   const { data, error } = await supabase.from('matches').select('*').order('id');
-  if(error){ console.error('loadMatchesDB:', error); return []; }
+  if(error){ console.error(error); return []; }
   return data || [];
 }
 
-// Создать матч
 export async function createMatchDB({A,B,deadline=0}){
-  const row = { A, B, open: true, winner: null, deadline, betsA: 0, betsB: 0 };
+  const row = { A, B, open:true, winner:null, deadline, betsA:0, betsB:0 };
   const { error } = await supabase.from('matches').insert([row]);
-  if(error){ alert('DB error: '+error.message); }
+  if(error){ alert(error.message); }
 }
 
-// Выставить победителя
 export async function setWinnerDB(id, side){
-  const { error } = await supabase.from('matches').update({ winner: side, open: false }).eq('id', id);
-  if(error){ alert('DB error: '+error.message); }
+  const { error } = await supabase.from('matches').update({ winner: side, open:false }).eq('id', id);
+  if(error){ alert(error.message); }
 }
 
-// Записать ставку + инкремент суммы в агрегатах
-export async function placeBetDB({username, match_id, side, amount}){
-  // 1) запись ставки
-  const { error: e1 } = await supabase.from('bets').insert([{ username, match_id, side, amount }]);
-  if(e1){ alert('DB bet error: '+e1.message); return; }
-  // 2) увеличение суммы в таблице matches
+// === BETS ===
+export async function placeBetDB(user_id, match_id, side, amount){
+  // 1) check balance
+  const bal = await getUserBalance(user_id);
+  if(bal < amount){ alert('Nepietiek bilance'); return; }
+
+  // 2) create bet
+  const { error: e1 } = await supabase.from('bets').insert([{ user_id, match_id, side, amount }]);
+  if(e1){ alert(e1.message); return; }
+
+  // 3) decrement user balance
+  await supabase.rpc('decrement_balance', { p_user_id: user_id, p_amount: amount }).catch(async ()=>{
+    // Fallback if no RPC: do simple update
+    await supabase.from('users').update({ balance: bal - amount }).eq('id', user_id);
+  });
+
+  // 4) increment aggregate on matches
   const field = side==='A' ? 'betsA' : 'betsB';
-  const { data, error: e2 } = await supabase.from('matches').select('*').eq('id', match_id).single();
-  if(e2 || !data){ console.error(e2); return; }
-  const next = (data[field] || 0) + amount;
-  const upd = {}; upd[field] = next;
-  await supabase.from('matches').update(upd).eq('id', match_id);
+  const { data: m } = await supabase.from('matches').select(field).eq('id', match_id).single();
+  const next = (m?.[field]||0) + amount;
+  await supabase.from('matches').update({ [field]: next }).eq('id', match_id);
+}
+
+// === EXTRA: user's bets with match join ===
+export async function getUserBets(user_id){
+  // we'll do two queries and merge client-side for simplicity
+  const { data: bets } = await supabase.from('bets').select('*').eq('user_id', user_id).order('id');
+  if(!bets || !bets.length) return [];
+  const ids = [...new Set(bets.map(b=>b.match_id))];
+  const { data: matches } = await supabase.from('matches').select('*').in('id', ids);
+  const map = new Map((matches||[]).map(m=>[m.id,m]));
+  return bets.map(b=>{
+    const m = map.get(b.match_id)||{};
+    return { ...b, A: m.A, B: m.B, winner: m.winner };
+  });
 }
