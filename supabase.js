@@ -6,9 +6,9 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export function getCurrentUser(){
-  try { return JSON.parse(localStorage.getItem('user')||'null'); } catch(e){ return null; }
+  try { return JSON.parse(localStorage.getItem('users_custom')||'null'); } catch(e){ return null; }
 }
-export function logoutUser(){ localStorage.removeItem('user'); }
+export function logoutUser(){ localStorage.removeItem('users_custom'); }
 
 export async function registerUser(username, password){
   const { error } = await supabase.from('users').insert([{ username, password, balance: 100 }]);
@@ -19,7 +19,7 @@ export async function registerUser(username, password){
 export async function loginUser(username, password){
   const { data, error } = await supabase.from('users').select('*').eq('username', username).eq('password', password).single();
   if(error || !data){ alert('Nepareizs lietotājvārds vai parole'); return null; }
-  localStorage.setItem('user', JSON.stringify(data));
+  localStorage.setItem('users_custom', JSON.stringify(data));
   return data;
 }
 export async function getUserBalance(user_id){
