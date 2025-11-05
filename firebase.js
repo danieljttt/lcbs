@@ -214,3 +214,13 @@ export function subscribeRealtime(cb){
     onValue(ref(db,p),()=>{ try{cb&&cb();}catch(e){} });
   });
 }
+import { ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { database } from "./firebase.js";
+
+export async function updateTeamLogo(teamId, logoUrl) {
+  await update(ref(database, `teams_seed/${teamId}`), { logo: logoUrl });
+}
+
+export async function updatePlayerStats(playerId, stats) {
+  await update(ref(database, `fantasy_players/${playerId}/stats`), stats);
+}
