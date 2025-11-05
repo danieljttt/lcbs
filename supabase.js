@@ -1,11 +1,10 @@
 export {};
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-/* === Your Supabase project (GitHub Pages ready) === */
-const SUPABASE_URL = "https://vikcpipfrniiqiblvdkw.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpa2NwaXBmcm5paXFpYmx2ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNjA4OTIsImV4cCI6MjA3NzgzNjg5Mn0.KpwDxvJBvehz-61ziDDuEo-c8OWmZLQyD5bL5iORfFQ";
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseUrl = 'https://vikcpipfrniiqiblvdkw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpa2NwaXBmcm5paXFpYmx2ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNjA4OTIsImV4cCI6MjA3NzgzNjg5Mn0.KpwDxvJBvehz-61ziDDuEo-c8OWmZLQyD5bL5iORfFQ';
 
+export const supabase = createClient(supabaseUrl, supabaseKey);
 /* ========= USERS (custom table, plaintext as requested) ========= */
 const USERS_TABLE = 'users_custom';
 
