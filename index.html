@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Little Community Becomes Something — Fantasy CS 3x3</title>
+<style>
+:root{
+  --r-lg:18px; --r-md:14px; --r-sm:10px;
+  --s-1:6px; --s-2:10px; --s-3:14px; --s-4:18px;
+  --bg:#e9f6ec; --card:#f8fef9; --text:#122617; --muted:#4a6b50;
+  --line:#cfe7d6; --line-strong:#b7d9c2;
+  --accent:#4CAF50; --accent-2:#7fd487;
+  --skeuo-surface: radial-gradient(60% 80% at 50% 0%, rgba(255,255,255,.9), rgba(233,246,236,.8)), linear-gradient(180deg,#f5fcf7,#eef9f1);
+  --skeuo-metal: linear-gradient(180deg,#ecfbf0,#dcf4e3);
+  --skeuo-inner: inset 0 10px 26px rgba(0,0,0,.05), inset 0 -6px 10px rgba(255,255,255,.8);
+  --skeuo-bevel: 0 1px 0 rgba(255,255,255,.9), 0 20px 40px rgba(0,0,0,.06);
+  --ring: 0 0 0 3px rgba(76,175,80,.18);
+  --tier1:#2e7d32; --tier2:#66bb6a; --tier3:#a5d6a7;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1412; --card:#111a14; --text:#e9f6ec; --muted:#9bc5a5;
+    --line:#1e2a24; --line-strong:#243428;
+    --accent:#7fd487; --accent-2:#58b869;
+    --skeuo-surface: radial-gradient(60% 80% at 50% 0%, rgba(40,60,45,.5), rgba(12,18,14,.9)), linear-gradient(180deg,#121a15,#0e150f);
+    --skeuo-metal: linear-gradient(180deg,#121a15,#0e150f);
+    --skeuo-inner: inset 0 10px 26px rgba(0,0,0,.45), inset 0 -6px 10px rgba(255,255,255,.03);
+    --skeuo-bevel: 0 1px 0 rgba(255,255,255,.08), 0 20px 40px rgba(0,0,0,.45);
+    --ring: 0 0 0 3px rgba(127,212,135,.22);
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+.container{max-width:1100px;margin:0 auto;padding:var(--s-3)}
+.hidden{display:none!important}
+main{padding-bottom:120px}
+html,body,main,.container,section{max-width:100vw;overflow-x:hidden}
+.brand{margin:10px 0;padding:14px;border-radius:18px;background:var(--skeuo-surface);border:1px solid var(--line);box-shadow:var(--skeuo-bevel);display:flex;gap:10px;align-items:center}
+.card{background:var(--skeuo-surface);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--skeuo-inner),var(--skeuo-bevel)}
+h1{font-size:20px;margin:0 0 8px} h2{font-size:18px;margin:0 0 8px} h3{font-size:16px;margin:0 0 6px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center} .muted{color:var(--muted)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.3));box-shadow:var(--skeuo-bevel)}
+input,select,textarea{width:100%;border-radius:14px;border:1px solid var(--line-strong);padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.35));color:var(--text);box-shadow:var(--skeuo-inner)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:12px 14px;border:1px solid var(--line-strong);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.3));box-shadow:var(--skeuo-bevel);cursor:pointer;font-weight:800;min-height:44px}
+.btn:hover{box-shadow:var(--skeuo-bevel),var(--ring);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px)} .btn.danger{border-color:#e57373;background:linear-gradient(180deg,#ffd9d9,#ffd3d3)}
+.table-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+.table{width:100%;min-width:640px;border-collapse:separate;border-spacing:0 10px}
+.table th{text-align:left;color:var(--muted);padding:6px 8px;white-space:nowrap;cursor:default}
+.table th.sortable{cursor:pointer}
+.table td{padding:12px 8px;background:rgba(255,255,255,.45);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.table tr td:first-child{border-left:1px solid var(--line);border-top-left-radius:12px;border-bottom-left-radius:12px}
+.table tr td:last-child{border-right:1px solid var(--line);border-top-right-radius:12px;border-bottom-right-radius:12px}
+.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:100;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px 12px calc(env(safe-area-inset-bottom,0)+10px);background:var(--skeuo-metal);border-top:1px solid var(--line);box-shadow:0 -18px 40px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.6)}
+.bottom-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.25));box-shadow:var(--skeuo-bevel);font-size:12px;user-select:none;min-height:58px}
+.bottom-item.active{border-color:var(--accent);color:var(--accent);box-shadow:var(--skeuo-bevel),0 0 0 3px rgba(76,175,80,.18)}
+.bottom-plus{transform:translateY(-14px);background:radial-gradient(22px 22px at 50% 0,rgba(76,175,80,.22),transparent),linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.4))}
+#plusMenuBackdrop{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.25);backdrop-filter:blur(6px);z-index:110}
+#plusMenu{width:min(720px,96vw);margin:0 0 calc(env(safe-area-inset-bottom,0)+12px);padding:14px;border-radius:18px;background:var(--skeuo-surface);border:1px solid var(--line);box-shadow:var(--skeuo-bevel)}
+.plus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.plus-btn{text-align:center;padding:12px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.25));box-shadow:var(--skeuo-bevel);font-weight:800;cursor:pointer}
+.view{opacity:0;transform:translateY(8px);transition:opacity .28s, transform .28s}
+.view.active{opacity:1;transform:translateY(0)}
+.bet-card{border-radius:22px;padding:18px;border:1px solid var(--line-strong);background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.45));box-shadow:var(--skeuo-bevel);margin-bottom:14px;position:relative}
+.bet-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center}
+.bet-team{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.bet-team .logo{width:64px;height:48px;border-radius:10px;border:1px solid var(--line);background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.bet-vs{font-weight:900;color:var(--muted);padding:4px 8px;border-radius:999px;border:1px solid var(--line)}
+.bet-cta{display:flex;gap:10px;justify-content:center;margin-top:10px}
+
+/* Warning modal */
+#warnBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:120}
+.warn-card{width:min(640px,96vw);border-radius:18px;border:1px solid #ef9a9a;background:linear-gradient(180deg,#fff3f3,#ffecec);box-shadow:0 14px 40px rgba(0,0,0,.25),inset 0 12px 22px rgba(255,255,255,.6);padding:16px;animation:flash .75s ease-in-out}
+.warn-head{display:flex;gap:10px;align-items:center;font-weight:900;color:#b71c1c}
+.warn-icon{font-size:28px}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,0,0,.0)}25%{box-shadow:0 0 0 8px rgba(255,0,0,.15)}100%{box-shadow:0 14px 40px rgba(0,0,0,.25),inset 0 12px 22px rgba(255,255,255,.6)}}
+.shake{animation:shake .45s ease-in-out}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}
+
+/* Loader */
+#app-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:1000;transition:opacity .35s ease}
+.loader-card{padding:18px 22px;border-radius:18px;border:1px solid var(--line);background:var(--skeuo-surface);box-shadow:var(--skeuo-inner),var(--skeuo-bevel);display:flex;align-items:center;gap:12px}
+.blink{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px rgba(76,175,80,.15);animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:1;transform:scale(1)}}
+
+/* Inline expand */
+.expand{background:rgba(255,255,255,.6);border:1px dashed var(--line);}
+.expand-inner{padding:10px}
+.expand-close{float:right;cursor:pointer}
+.slide{overflow:hidden;max-height:0;transition:max-height .28s ease}
+.slide.open{max-height:520px}
+
+/* Modal */
+#teamBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(6px)}
+#teamModal{width:min(720px,96vw);max-height:86vh;overflow:auto}
+
+/* Two column fantasy layout */
+.fantasy-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media (max-width: 960px){ .fantasy-grid{grid-template-columns:1fr} }
+.tier-border-1{border:2px solid var(--tier1); background:linear-gradient(180deg, rgba(46,125,50,.08), transparent)}
+.tier-border-2{border:2px solid var(--tier2); background:linear-gradient(180deg, rgba(102,187,106,.08), transparent)}
+.tier-border-3{border:2px solid var(--tier3); background:linear-gradient(180deg, rgba(165,214,167,.10), transparent)}
+
+/* === Neon Winner Glow Effect (border only) === */
+.win-glow {
+  border: 2px solid #00ff88 !important;
+  box-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, inset 0 0 10px rgba(0,255,136,0.4);
+  animation: rainbowGlow 3.2s infinite linear, pulseGlow 1.4s infinite ease-in-out;
+  border-radius: 14px;
+  padding: 10px;
+}
+@keyframes rainbowGlow {
+  0% { box-shadow: 0 0 12px #00ff88, 0 0 20px #00ff88, inset 0 0 8px rgba(0,255,136,.5); border-color:#00ff88; }
+  33% { box-shadow: 0 0 12px #ffaa00, 0 0 20px #ffaa00, inset 0 0 8px rgba(255,170,0,.5); border-color:#ffaa00; }
+  66% { box-shadow: 0 0 12px #0099ff, 0 0 20px #0099ff, inset 0 0 8px rgba(0,153,255,.5); border-color:#0099ff; }
+  100% { box-shadow: 0 0 12px #00ff88, 0 0 20px #00ff88, inset 0 0 8px rgba(0,255,136,.5); border-color:#00ff88; }
+}
+@keyframes pulseGlow {
+  0%, 100% { transform: translateZ(0) scale(1); }
+  50% { transform: translateZ(0) scale(1.02); }
+}
+
+/* Winner labels (plain, non-neon) */
+.win-label {
+  font-weight: 800;
+  margin-top: 4px;
+}
+.match-closed-label {
+  font-weight: 700;
+}
+
+/* Winner Pikachu badge ABOVE the winner frame */
+.winner-badge{
+  position:absolute;
+  top:-8px; /* slightly above the top edge of winner block */
+  left:50%;
+  transform: translate(-50%, -100%);
+  width:48px; height:48px;
+  pointer-events:none;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
+  opacity:.98;
+  animation: badgePop .6s ease-out, badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePop{
+  0%{ transform: translate(-50%, -100%) scale(.6) rotate(-6deg); opacity:0; }
+  60%{ transform: translate(-50%, -100%) scale(1.05) rotate(2deg); opacity:1; }
+  100%{ transform: translate(-50%, -100%) scale(1) rotate(0); }
+}
+@keyframes badgePulse{
+  0%,100%{ transform: translate(-50%, -100%) }
+  50%{ transform: translate(calc(-50% + 0px), calc(-100% - 2px)) }
+}
+</style>
+</head>
+<body>
+<div id="app-loader"><div class="loader-card"><div class="blink"></div><div>Notiek ielāde…</div></div></div>
+<header class="container"><div class="brand"><span>🎯</span><b>Little Community Becomes Something</b></div></header>
+
+<main class="container" id="app-root" style="opacity:0;transition:opacity .3s ease">
+  <section id="view-home" class="view active">
+    <div class="card">
+      <h1>Sākums</h1>
+      <div id="homeAuth" class="row"></div>
+      <hr><div id="homeSummary"></div>
+    </div>
+  </section>
+
+  <section id="view-players" class="view hidden">
+    <div class="card">
+      <h1>Fentēzi — tirgus</h1><p class="muted" id="transferStatus">—</p>
+      <div class="row" id="slots"></div>
+    </div>
+
+    <div class="fantasy-grid" style="margin-top:12px">
+      <div class="card" id="playersLeft">
+        <h2>Spēlētāji — statistika</h2>
+        <div class="table-wrap"><div id="playersTable"></div></div>
+      </div>
+      <div class="card" id="managersRight">
+        <h2>Citu menedžeru komandas</h2>
+        <div id="otherTeams"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-team" class="view hidden">
+    <div class="card">
+      <h1>Mans profils</h1>
+      <div id="authBox" class="row"></div>
+      <div id="profileBox" class="hidden">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h2 style="margin:0">Mana komanda</h2><div id="changeTeamBox"></div>
+        </div>
+        <div id="myTeam"></div>
+        <p class="muted" style="margin-top:6px">Atlikušais budžets: <b id="teamBudget">10</b> kr</p>
+        <div class="row" style="margin-top:6px">
+          <span class="badge">Fantasy: <b id="budgetFantasy">10</b> kr</span>
+          <span class="badge">Stakes: <b id="budgetBets">100</b> kr</span>
+        </div>
+        <div style="margin-top:8px"><button class="btn" onclick="clearTeam()">Notīrīt komandu</button></div>
+        <hr><h2>Mani Fantasy punkti: <span id="myPoints">0</span></h2>
+        <h2>Likmju vēsture</h2><div class="table-wrap"><div id="myBets"></div></div>
+        <h2>Statistika (+/−)</h2><div id="myStats"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-leaderboard" class="view hidden">
+    <div class="card">
+      <h1>Līderi — Fantasy ar komandu</h1>
+      <div class="table-wrap"><div id="leadersTable"></div></div>
+    </div>
+  </section>
+
+  <section id="view-bets" class="view hidden">
+    <div class="card">
+      <h1>Likmes</h1><p class="muted">Likmes pieņem līdz: <span id="betsDeadline">—</span></p>
+      <div class="row" id="balanceRow"></div>
+      <div id="betCards"></div>
+    </div>
+  </section>
+
+  <section id="view-admin" class="view hidden">
+    <div class="card">
+      <h1>Admin panelis</h1>
+      <div class="row">
+        <div style="flex:1;min-width:220px"><label>Transfēri slēgti līdz (UTC)</label><input id="transferLock" type="datetime-local"></div>
+        <div style="flex:1;min-width:220px"><label>Globālais likmju termiņš (UTC)</label><input id="betsClose" type="datetime-local"></div>
+        <button class="btn" id="saveTimes">Saglabāt</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn danger" id="resetSeason">🧹 Atiestatīt sezonu</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Spēlētāju redaktors — Kills / Deaths / MVP</h2>
+      <div class="table-wrap"><div id="playersEdit"></div></div>
+      <p class="muted">Punkti pārrēķinās automātiski, kad maini vērtības.</p>
+    </div>
+
+    <div class="card">
+      <h2>Komandas (logo)</h2>
+      <div class="row">
+        <input id="teamName" placeholder="Nosaukums">
+        <input id="teamLogo" type="file" accept="image/*">
+        <button class="btn" id="saveTeamMeta">Saglabāt</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <textarea id="bulkTeams" rows="3" placeholder="Import: pa vienai komandai rindā"></textarea>
+        <button class="btn" id="bulkImport">Importēt</button>
+      </div>
+      <div class="table-wrap" style="margin-top:8px"><div id="teamsTable"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Jauns mačs</h2>
+      <div class="row">
+        <select id="newMatchA" style="min-width:200px"></select>
+        <span class="badge">vs</span>
+        <select id="newMatchB" style="min-width:200px"></select>
+        <input id="newMatchDeadline" type="datetime-local" style="min-width:220px">
+        <button class="btn" id="createMatch">Izveidot maču</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mači</h2>
+      <div class="table-wrap" style="margin-top:8px"><div id="adminMatches"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Lietotāji — bilances</h2>
+      <div class="table-wrap"><div id="usersTable"></div></div>
+    </div>
+  </section>
+</main>
+
+<div class="bottom-bar">
+  <div class="bottom-item" data-route="home"><div>🏠</div><div>Sākums</div></div>
+  <div class="bottom-item" data-route="team"><div>👤</div><div>Profils</div></div>
+  <div class="bottom-item" data-route="players"><div>🎮</div><div>Fentēzi</div></div>
+  <div class="bottom-item" data-route="bets"><div>💰</div><div>Likmes</div></div>
+  <div class="bottom-item bottom-plus" id="plusBtn"><div>＋</div><div>Vairāk</div></div>
+</div>
+
+<div id="plusMenuBackdrop" role="dialog" aria-modal="true">
+  <div id="plusMenu" class="card">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <h2>Sadaļas</h2><button class="btn" id="closePlus">Aizvērt</button>
+    </div>
+    <div class="plus-grid" id="plusGrid"></div>
+  </div>
+</div>
+
+<div id="warnBackdrop">
+  <div class="warn-card" id="warnCard">
+    <div class="warn-head"><div class="warn-icon">⚠️</div><div>Lūdzu, apstipriniet!</div></div>
+    <p style="margin:8px 0 12px">
+      Pēc apstiprināšanas jūsu pašreizējā komanda tiks <b>dzēsta</b> un jūs <b>nevarēsiet to mainīt</b> vēlreiz šajā sezonā.
+      Vai tiešām vēlaties turpināt?
+    </p>
+    <div class="row"><button class="btn danger" id="warnConfirm">✅ Jā, apstiprināt</button><button class="btn" id="warnCancel">❌ Atcelt</button></div>
+  </div>
+</div>
+
+<div id="pickerBackdrop" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200">
+  <div class="card" style="width:min(1000px,96vw);max-height:86vh;overflow:auto">
+    <div class="row" style="justify-content:space-between;align-items:center"><h2>Izvēlies spēlētāju</h2><button class="btn" onclick="closePicker()">✕</button></div>
+    <div class="row"><select id="tierFilter" style="max-width:220px"><option value="">Visi Tiers</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option></select><input id="searchPlayer" placeholder="Meklēt spēlētāju/komandu" style="flex:1;min-width:220px"></div>
+    <div id="pickerList" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="teamBackdrop">
+  <div id="teamModal" class="card">
+    <div class="row" style="justify-content:space-between;align-items:center"><h2 id="teamModalTitle">Komanda</h2><button class="btn" onclick="closeTeamModal()">✕</button></div>
+    <div id="teamModalBody"></div>
+  </div>
+</div>
+
+<script>
+const STORE={players:'fcsl_players',users:'fcsl_users',currentUser:'fcsl_currentUser',matches:'fcsl_matches',teamsMeta:'fcsl_teams_meta',teamList:'fcsl_teamList',bets:'fcsl_bets',settings:'fcsl_settings',backup:'fcsl_backup'};
+function get(k,d){try{return JSON.parse(localStorage.getItem(k)??JSON.stringify(d))}catch(e){return d}}
+function set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function upsertUser(u){const arr=get(STORE.users,[]);const i=arr.findIndex(x=>x.username.toLowerCase()===u.username.toLowerCase());if(i>=0)arr[i]=u;else arr.push(u);set(STORE.users,arr);return u}
+function findUser(n){return get(STORE.users,[]).find(x=>x.username.toLowerCase()===String(n||'').toLowerCase())||null}
+const TEAM_BUDGET=10, TEAM_SIZE=3;
+function teamCost(team){const map=new Map(get(STORE.players,[]).map(x=>[x.username,x]));return (team||[]).reduce((s,u)=>s+(map.get(u)?.price||0),0)}
+function fmt(ms){if(!ms)return '—'; const d=new Date(ms); return d.toISOString().replace('T',' ').slice(0,16)+' UTC'}
+function renderAll(){try{renderHome();renderFantasy();renderProfile();renderLeaders();renderBets();}catch(e){}}
+</script>
+
+<script>
+(function seed(){
+  if(!get(STORE.players,[]).length){
+    const raw=[
+      ["toothfairy","Holy Priests",3.95712,"https://steamcommunity.com/profiles/76561198872641163",1.31,1.22,95,45],
+      ["s1me","Holy Priests",2.14500,"https://steamcommunity.com/id/camelblackcompact/",1.09,0.98,81,46],
+      ["Decoy","Holy Priests",1.31877,"https://steamcommunity.com/profiles/76561199404403438",0.77,0.66,58,40],
+      ["Kirbitch","Cotton Pickers",3.02531,"https://steamcommunity.com/profiles/76561198257075656",1.15,1.01,87,38],
+      ["K1rgo777","Cotton Pickers",2.49370,"https://steamcommunity.com/profiles/76561199003294165",1.17,1.07,81,40],
+      ["family","Cotton Pickers",1.92834,"https://steamcommunity.com/profiles/76561199416292715",0.93,0.82,69,47],
+      ["Wide","9/11",2.71121,"https://steamcommunity.com/profiles/76561198392474738",1.06,1.04,76,42],
+      ["MV","9/11",2.42153,"https://steamcommunity.com/profiles/76561198368168183",1.15,1.04,80,40],
+      ["CUBONS","9/11",2.06813,"https://steamcommunity.com/id/cubons",0.98,0.86,76,52],
+      ["namejs","Turanskis",2.69768,"https://steamcommunity.com/id/namejs1/",1.15,1.07,82,37],
+      ["L53","Turanskis",2.12995,"https://steamcommunity.com/profiles/76561198366639353",1.00,0.82,80,51],
+      ["Sahtoms","Turanskis",2.39334,"https://steamcommunity.com/id/METRODARZS",1.01,0.94,71,50],
+      ["romanch","Mācekļi",2.59864,"https://steamcommunity.com/profiles/76561199349236816",1.15,1.05,85,50],
+      ["Rubber-","Mācekļi",1.94901,"https://steamcommunity.com/id/leonskut",1.07,0.97,75,39],
+      ["sinAy","Mācekļi",1.63127,"https://steamcommunity.com/profiles/76561198256725891",0.88,0.78,65,41],
+    ].map(([username,team,pre3v3,steam,hltv,kd,adr,hs])=>({username,team,pre3v3,steam,hltv,kd,adr,hs}));
+    raw.sort((a,b)=>b.pre3v3-a.pre3v3);
+    raw.forEach((p,i)=>{ if(i<5){p.tier='Tier 1';p.price=6}else if(i<10){p.tier='Tier 2';p.price=4}else{p.tier='Tier 3';p.price=2} p.kills=0;p.deaths=0;p.mvp=0;p.points=0; });
+    set(STORE.players,raw);
+  }
+  const names=["Holy Priests","Cotton Pickers","9/11","Turanskis","Mācekļi"];
+  const meta=get(STORE.teamsMeta,{}); names.forEach(n=>{ meta[n]=Object.assign({logo:null}, meta[n]||{}) }); set(STORE.teamsMeta,meta); set(STORE.teamList,names);
+  if(!get(STORE.matches,[]).length){ set(STORE.matches,[]); }
+  if(!get(STORE.settings,null)){ set(STORE.settings,{transferLockedUntil:0,betsCloseAt:0,seasonId:1}); }
+  if(!get(STORE.bets,[]).length) set(STORE.bets,[]);
+  const users=get(STORE.users,[]).map(u=>Object.assign({teamResetUsed:false,balanceBets:(u.balanceBets??100),budgetFantasy:(u.budgetFantasy??10)},u)); set(STORE.users,users);
+})();
+</script>
+
+<script>
+function currentUser(){return get(STORE.currentUser,null)}
+function isSuperAdmin(){const u=currentUser(); return !!(u && u.username && u.username.toLowerCase()==='dturannn')}
+function upsertUserNow(o){upsertUser(o);set(STORE.currentUser,o)}
+function getUserObj(){const u=currentUser();return u?findUser(u.username):null}
+function saveUserObj(o){if(!o)return; upsertUserNow(o)}
+function loadUserTeam(){const u=getUserObj();return u?(u.team||[]):[]}
+function saveUserTeam(list){const u=getUserObj(); if(!u){alert('Vispirms ieejiet'); return;} u.team=list; saveUserObj(u)}
+function registerUser(){const u=(document.getElementById('homeUser')||document.getElementById('regUser')).value.trim();const p=(document.getElementById('homePass')||document.getElementById('regPass')).value; if(!u||!p){alert('Ievadiet lietotājvārdu un paroli');return;} if(findUser(u)){alert('Šāds lietotājvārds jau pastāv');return;} const obj={username:u,password:p,team:[],points:0,bets:[],plus:0,minus:0,teamResetUsed:false,balanceBets:100,budgetFantasy:10}; upsertUserNow(obj); renderAll(); show('home'); }
+function login(){const u=(document.getElementById('homeUser')||document.getElementById('regUser')).value.trim();const p=(document.getElementById('homePass')||document.getElementById('regPass')).value; const obj=findUser(u); if(!obj||obj.password!==p){alert('Nepareizs lietotājvārds vai parole');return;} set(STORE.currentUser,obj); renderAll(); show('home'); }
+function logout(){localStorage.removeItem(STORE.currentUser); renderAll(); show('home'); }
+function computeUserFantasyPoints(user){const map=new Map(get(STORE.players,[]).map(x=>[x.username,x])); return (user.team||[]).reduce((s,u)=>s+(map.get(u)?.points||0),0)}
+</script>
+
+<script>
+const routes=['home','players','team','leaderboard','bets','admin'];
+function show(route){
+  if(route==='admin' && !isSuperAdmin()) route='home';
+  routes.forEach(r=>{const el=document.getElementById('view-'+r); const on=r===route; el.classList.toggle('hidden',!on); el.classList.toggle('active',on); el.classList.add('view'); });
+  document.querySelectorAll('.bottom-item').forEach(el=>el.classList.toggle('active',el.dataset.route===route));
+  if((location.hash||'')!=='#'+route){ try{ location.hash=route; }catch(e){} }
+  if(route==='home') renderHome();
+  if(route==='players') renderFantasy();
+  if(route==='team') renderProfile();
+  if(route==='leaderboard') renderLeaders();
+  if(route==='bets') renderBets();
+  if(route==='admin') renderAdmin();
+}
+window.addEventListener('hashchange',()=>{ const r=(location.hash||'#home').slice(1); show(r||'home') });
+document.querySelectorAll('.bottom-item[data-route]').forEach(el=> el.addEventListener('click',()=> show(el.dataset.route)));
+const plusBackdrop=document.getElementById('plusMenuBackdrop');
+document.getElementById('plusBtn').addEventListener('click',()=>{ plusBackdrop.style.display='flex'; buildPlus(); });
+document.getElementById('closePlus').addEventListener('click',()=> plusBackdrop.style.display='none');
+plusBackdrop.addEventListener('click',e=>{ if(e.target===plusBackdrop) plusBackdrop.style.display='none' });
+function buildPlus(){ const grid=document.getElementById('plusGrid'); const extra=[['leaderboard','Līderi'], ...(isSuperAdmin()? [['admin','Admin']]:[]) ]; grid.innerHTML=extra.map(([r,t])=>`<div class="plus-btn" data-route="${r}">${t}</div>`).join(''); grid.querySelectorAll('.plus-btn').forEach(b=> b.addEventListener('click',()=>{ plusBackdrop.style.display='none'; show(b.dataset.route); })); }
+</script>
+
+<script>
+function renderHome(){
+  const u=getUserObj(); const auth=document.getElementById('homeAuth'); const sum=document.getElementById('homeSummary');
+  if(!u){
+    auth.innerHTML = `<input id="homeUser" placeholder="Lietotājvārds"><input id="homePass" type="password" placeholder="Parole"><button class="btn" onclick="registerUser()">Reģistrēties</button><button class="btn" onclick="login()">Ieiet</button>`;
+    sum.innerHTML = `<p class="muted">Reģistrējies un izveido savu 3 spēlētāju komandu (budžets 10 kr), tad liec likmes uz mačiem.</p>`;
+  } else {
+    auth.innerHTML = `<span class="badge">Sveiks, <b>${u.username}</b></span> <button class="btn" onclick="show('team')">Mans profils</button><button class="btn" onclick="show('players')">Fentēzi</button><button class="btn" onclick="show('bets')">Likmes</button><button class="btn" onclick="logout()">Iziet</button>`;
+    const team=u.team||[]; const left=TEAM_BUDGET-teamCost(team); const pts=computeUserFantasyPoints(u);
+    sum.innerHTML = `<h2>Tava Fantasy informācija</h2>
+      <div>Komanda:</div>
+      <ul>${team.map(n=>`<li>${n}</li>`).join('') || '<li class="muted">nav</li>'}</ul>
+      <div class="row"><span class="badge">Budžets: ${left} kr</span><span class="badge">Punkti: ${pts}</span></div>
+      <div class="row" style="margin-top:6px"><span class="badge">Fantasy budžets: ${u.budgetFantasy??10} kr</span><span class="badge">Stakes bilance: ${u.balanceBets??100} kr</span></div>`;
+  }
+}
+</script>
+
+<script>
+function isTransferLocked(){ const s=get(STORE.settings,{transferLockedUntil:0}); return Date.now() < (s.transferLockedUntil||0) }
+let playersSortKey='kills', playersSortDir='desc';
+function renderFantasy(){
+  const s=get(STORE.settings,{transferLockedUntil:0}); document.getElementById('transferStatus').textContent = isTransferLocked()? `Transfēri slēgti līdz ${fmt(s.transferLockedUntil)}.` : 'Transfēri atvērti — aizpildi 3 slotus.';
+  const slots=document.getElementById('slots'); const u=getUserObj(); const team=u?(u.team||[]):[];
+  slots.innerHTML=[0,1,2].map(i=>{
+    const filled=!!team[i]; const dis=isTransferLocked();
+    return `<div class="card" style="flex:1;min-width:220px;opacity:${dis?.8:1}">
+      <div class="row" style="justify-content:space-between"><b>Slot ${i+1}</b>${filled&&!dis?`<button class="btn" onclick="removeSlot(${i})">Noņemt</button>`:''}</div>
+      <div style="margin-top:6px">${filled? team[i] : `<button class="btn" ${dis?'disabled':''} onclick="openPicker(${i})">Izvēlēties spēlētāju</button>`}</div>
+    </div>`;
+  }).join('');
+  const all=get(STORE.players,[]).slice();
+  all.sort((a,b)=>{ const vA=a[playersSortKey]||0, vB=b[playersSortKey]||0; return playersSortDir==='asc'? vA-vB : vB-vA; });
+  const rows=all.map(pl=>{
+    const tierClass = pl.tier==='Tier 1'?'tier-border-1':(pl.tier==='Tier 2'?'tier-border-2':'tier-border-3');
+    return `<tr data-row="${pl.username}" class="${tierClass}">
+      <td><b>${pl.username}</b></td><td>${pl.team}</td><td>${pl.kills||0}</td><td>${pl.deaths||0}</td><td>${pl.mvp||0}</td>
+    </tr>
+    <tr id="expRow-${pl.username}" class="expand hidden"><td colspan="5">
+      <div id="exp-${pl.username}" class="slide"></div>
+    </td></tr>`;
+  }).join('');
+  document.getElementById('playersTable').innerHTML = `<table class="table" id="playersTableEl"><thead><tr>
+    <th>Spēlētājs</th><th>Komanda</th>
+    <th class="sortable" data-key="kills">Kills ${playersSortKey==='kills'?(playersSortDir==='desc'?'↓':'↑'):''}</th>
+    <th class="sortable" data-key="deaths">Deaths ${playersSortKey==='deaths'?(playersSortDir==='desc'?'↓':'↑'):''}</th>
+    <th class="sortable" data-key="mvp">MVP ${playersSortKey==='mvp'?(playersSortDir==='desc'?'↓':'↑'):''}</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+  document.querySelectorAll('#playersTableEl .sortable').forEach(th=> th.addEventListener('click',()=>{
+    const key=th.dataset.key;
+    if(playersSortKey===key){ playersSortDir = (playersSortDir==='desc'?'asc':'desc'); } else { playersSortKey=key; playersSortDir='desc'; }
+    renderFantasy();
+  }));
+  document.querySelectorAll('[data-row]').forEach(tr=>{
+    tr.addEventListener('click',()=>{
+      const name=tr.getAttribute('data-row'); togglePlayerInline(name);
+    });
+  });
+  const users=get(STORE.users,[]).filter(x=> (x.team||[]).length>0 && (!u || x.username.toLowerCase()!==u.username.toLowerCase()));
+  document.getElementById('otherTeams').innerHTML = users.length? users.map(x=>`<div class="row" style="justify-content:space-between"><b>${x.username}</b><span class="muted">${computeUserFantasyPoints(x)} p.</span><button class="btn" onclick="showTeamModal('${x.username.replace(/'/g,"&#39;")}')">Skatīt</button></div>`).join('<hr>') : '<p class="muted">Pagaidām nav citu komandu.</p>';
+}
+function removeSlot(i){ if(isTransferLocked())return; const u=getUserObj(); if(!u)return; const t=u.team||[]; t.splice(i,1); saveUserTeam(t); renderFantasy(); renderHome(); renderProfile(); }
+let pickSlot=null;
+function openPicker(slot){ if(isTransferLocked()){alert('Transfēri slēgti');return;} pickSlot=slot; document.getElementById('pickerBackdrop').classList.remove('hidden'); buildPicker(); }
+function closePicker(){ document.getElementById('pickerBackdrop').classList.add('hidden'); }
+function buildPicker(){
+  const p=get(STORE.players,[]); const u=getUserObj(); const team=(u?.team)||[];
+  function render(q='',tier=''){
+    const filtered=p.filter(x=>(!tier||x.tier===tier)&& (x.username.toLowerCase().includes(q)||x.team.toLowerCase().includes(q)));
+    const rows=filtered.map(pl=>{
+      const tierClass = pl.tier==='Tier 1'?'tier-border-1':(pl.tier==='Tier 2'?'tier-border-2':'tier-border-3');
+      return `<tr id="pick-${pl.username}" class="${tierClass}">
+        <td><b>${pl.username}</b></td><td>${pl.team}</td><td>${pl.tier}</td><td>${pl.price}</td>
+        <td>${pl.kd}</td><td>${pl.adr}</td><td>${pl.hs}%</td>
+        <td><button class="btn" onclick="togglePickDetails('${pl.username}')">Apskatīt ▾</button></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('pickerList').innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Vārds</th><th>Komanda</th><th>Tier</th><th>Cena</th><th>K/D</th><th>ADR</th><th>HS%</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  window.togglePickDetails=function(name){
+    const pl=p.find(x=>x.username===name); const u=getUserObj(); const team=(u?.team)||[];
+    const host=document.getElementById('pick-'+name);
+    const existing=document.getElementById('pickd-'+name);
+    if(existing){ existing.remove(); return; }
+    const row=document.createElement('tr'); row.id='pickd-'+name; row.className='expand';
+    const td=document.createElement('td'); td.colSpan=8;
+    const canBuy = !isTransferLocked() && (team.length<3 || team[pickSlot]) && !team.includes(name) && ( (u?.budgetFantasy??10) >= pl.price );
+    td.innerHTML = `<div class="expand-inner">
+      <span class="expand-close" onclick="togglePickDetails('${name}')">✕</span>
+      <div class="row"><span class="badge">${pl.tier}</span><span class="badge">${pl.price} kr</span><a class="badge" href="${pl.steam}" target="_blank">Steam</a></div>
+      <div class="row" style="margin-top:6px"><span class="badge">K/D: ${pl.kd}</span><span class="badge">ADR: ${pl.adr}</span><span class="badge">HS%: ${pl.hs}</span><span class="badge">Kills: ${pl.kills||0}</span><span class="badge">Deaths: ${pl.deaths||0}</span><span class="badge">MVP: ${pl.mvp||0}</span></div>
+      <div style="margin-top:8px"><button class="btn" ${canBuy?'':'disabled'} onclick='confirmBuy("${pl.username}")'>Pirkt</button></div>
+    </div>`;
+    row.appendChild(td);
+    host.insertAdjacentElement('afterend',row);
+  }
+  document.getElementById('tierFilter').onchange=(e)=>render((document.getElementById('searchPlayer').value||'').toLowerCase(), e.target.value);
+  document.getElementById('searchPlayer').oninput=(e)=>render((e.target.value||'').toLowerCase(), document.getElementById('tierFilter').value);
+  render();
+}
+function togglePlayerInline(name){
+  const p=get(STORE.players,[]).find(x=>x.username===name); if(!p)return;
+  const row=document.getElementById('expRow-'+name);
+  const cont=document.getElementById('exp-'+name);
+  const hidden=row.classList.contains('hidden');
+  document.querySelectorAll('.expand').forEach(e=>{ e.classList.add('hidden'); const d=e.querySelector('.slide'); if(d) { d.classList.remove('open'); d.innerHTML=''; } });
+  if(hidden){
+    cont.innerHTML = `<div class="expand-inner"><span class="expand-close" onclick="togglePlayerInline('${name}')">✕</span>
+      <div class="row"><span class="badge">${p.tier}</span><span class="badge">${p.price} kr</span><a class="badge" href="${p.steam}" target="_blank">Steam</a></div>
+      <div class="row" style="margin-top:6px"><span class="badge">K/D: ${p.kd}</span><span class="badge">ADR: ${p.adr}</span><span class="badge">HS%: ${p.hs}</span></div>
+    </div>`;
+    row.classList.remove('hidden'); setTimeout(()=>cont.classList.add('open'),0);
+  } else {
+    cont.classList.remove('open'); setTimeout(()=>{ row.classList.add('hidden'); cont.innerHTML=''; },280);
+  }
+}
+function confirmBuy(name){
+  const u=getUserObj(); if(!u){alert('Vispirms ieejiet');return;}
+  if(isTransferLocked()){alert('Transfēri slēgti');return;}
+  const p=get(STORE.players,[]).find(x=>x.username===name); if(!p){alert('Nav atrasts');return;}
+  const team=u.team||[];
+  if(team.includes(name)){alert('Šis spēlētājs jau ir komandā');return;}
+  if(team.length>=TEAM_SIZE && (pickSlot==null || pickSlot>=TEAM_SIZE || !team[pickSlot])){ alert('Komanda jau pilna'); return; }
+  if((u.budgetFantasy??10) < p.price){ alert('Nepietiek budžets (Fantasy)'); return; }
+  if(pickSlot!=null && pickSlot<TEAM_SIZE){
+    team[pickSlot]=name;
+  } else {
+    let placed=false;
+    for(let i=0;i<TEAM_SIZE;i++){ if(!team[i]){ team[i]=name; placed=true; break; } }
+    if(!placed) team.push(name);
+  }
+  u.team=team;
+  u.budgetFantasy=(u.budgetFantasy??10)-p.price;
+  saveUserObj(u);
+  closePicker();
+  renderFantasy(); renderProfile(); renderHome();
+}
+</script>
+
+<script>
+const warnBackdrop=document.getElementById('warnBackdrop'); const warnCard=document.getElementById('warnCard');
+document.getElementById('warnCancel').addEventListener('click',()=> warnBackdrop.style.display='none');
+document.getElementById('warnConfirm').addEventListener('click',()=>{
+  const u=getUserObj(); if(!u) return;
+  u.team=[]; u.teamResetUsed=true; saveUserObj(u);
+  warnBackdrop.style.display='none';
+  show('players'); alert('Sastāvs atiestatīts. Izvēlieties jaunu komandu.');
+});
+function triggerRosterWarning(){ warnBackdrop.style.display='flex'; warnCard.classList.remove('shake'); void warnCard.offsetWidth; warnCard.classList.add('shake'); }
+
+function renderProfile(){
+  const box=document.getElementById('authBox'); const prof=document.getElementById('profileBox'); const u=getUserObj();
+  if(!u){
+    box.innerHTML=`<input id="regUser" placeholder="Lietotājvārds"><input id="regPass" type="password" placeholder="Parole"><button class="btn" onclick="registerUser()">Reģistrēties</button><button class="btn" onclick="login()">Ieiet</button>`;
+    prof.classList.add('hidden');
+  } else {
+    box.innerHTML=`<span class="badge">Pieslēdzies kā <b>${u.username}</b></span> <button class="btn" onclick="logout()">Iziet</button>`;
+    prof.classList.remove('hidden');
+    const canChange = !isTransferLocked() && !u.teamResetUsed;
+    document.getElementById('changeTeamBox').innerHTML = canChange ? `<button class="btn danger" onclick="triggerRosterWarning()">Mainīt sastāvu</button>` : `<span class="muted">${u.teamResetUsed?'Sastāvs jau mainīts šajā sezonā':'Transfēri slēgti'}</span>`;
+    const team=u.team||[]; const left=TEAM_BUDGET-teamCost(team); document.getElementById('teamBudget').textContent=left;
+    const map=new Map(get(STORE.players,[]).map(x=>[x.username,x]));
+    document.getElementById('myTeam').innerHTML = team.length? team.map(n=>{ const p=map.get(n); return `<div class="row" style="justify-content:space-between"><div><b>${p.username}</b> <span class="muted">(${p.team}, ${p.tier}, ${p.price} kr)</span></div><span class="badge">${p.points||0} p.</span></div>` }).join('<hr>') : '<p class="muted">Komanda nav izvēlēta.</p>';
+    document.getElementById('myPoints').textContent = computeUserFantasyPoints(u);
+    document.getElementById('budgetFantasy').textContent = u.budgetFantasy??10;
+    document.getElementById('budgetBets').textContent = u.balanceBets??100;
+    renderMyBets(); renderMyStats();
+  }
+}
+function renderLeaders(){
+  const users=get(STORE.users,[]).filter(u=>(u.team||[]).length>0);
+  const map=new Map(get(STORE.players,[]).map(x=>[x.username,x]));
+  users.forEach(u=>u.fpoints=computeUserFantasyPoints(u));
+  users.sort((a,b)=>b.fpoints-a.fpoints);
+  const rows=users.map((u,i)=>{
+    const perPlayer=(u.team||[]).map(n=>{
+      const p=map.get(n); const pts=p?(p.points||0):0;
+      return `<tr><td>${n}</td><td class="muted">${p?.team||'-'}</td><td>${pts}</td></tr>`;
+    }).join('') || '<tr><td colspan="3" class="muted">Nav</td></tr>';
+    return `<tr data-lead="${u.username}"><td>${i+1}</td><td>${u.username}</td><td>${(u.team||[]).length}</td><td>${u.fpoints||0}</td><td>${(u.bets||[]).length}</td><td><button class="btn" onclick="toggleLeaderTeam('${u.username}')">▾</button></td></tr>
+    <tr class="expand"><td colspan="6">
+      <div id="lead-${u.username}" class="slide"></div>
+    </td></tr>`;
+  }).join('');
+  document.getElementById('leadersTable').innerHTML = `<table class="table"><thead><tr><th>#</th><th>Lietotājs</th><th>Spēlētāji</th><th>Punkti</th><th>Likmes</th><th>Komanda</th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="muted">Nav datu</td></tr>'}</tbody></table>`;
+}
+function toggleLeaderTeam(name){
+  const u=findUser(name); const cont=document.getElementById('lead-'+name);
+  if(!u||!cont)return;
+  const map=new Map(get(STORE.players,[]).map(x=>[x.username,x]));
+  const perPlayer=(u.team||[]).map(n=>{
+      const p=map.get(n); const pts=p?(p.points||0):0;
+      return `<tr><td>${n}</td><td class="muted">${p?.team||'-'}</td><td>${pts}</td></tr>`;
+  }).join('') || '<tr><td colspan="3" class="muted">Nav</td></tr>';
+  const isOpen=cont.classList.contains('open');
+  document.querySelectorAll('#leadersTable .slide').forEach(el=>{ el.classList.remove('open'); el.innerHTML=''; });
+  if(isOpen){ cont.classList.remove('open'); cont.innerHTML=''; return; }
+  cont.innerHTML = `<div class="expand-inner"><span class="expand-close" onclick="toggleLeaderTeam('${name}')">✕</span>
+    <b>Komanda: ${name}</b>
+    <div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:0"><thead><tr><th>Spēlētājs</th><th>Komanda</th><th>Punkti</th></tr></thead><tbody>${perPlayer}</tbody></table></div>
+    <div style="margin-top:6px" class="muted">Kopā: <b>${computeUserFantasyPoints(u)}</b> p.</div>
+  </div>`;
+  cont.classList.add('open');
+}
+function renderMyBets(){ const u=getUserObj(); const arr=u?(u.bets||[]):[]; if(!arr.length){ document.getElementById('myBets').innerHTML='<p class="muted">Nav likmju.</p>'; return;} const rows=arr.slice().reverse().map(b=>{ const res=b.result==null?'—':(b.result?'✔️':'❌'); return `<tr><td>#${b.matchId}</td><td>${b.teamA} vs ${b.teamB}</td><td>${b.side}</td><td>${b.amount}</td><td>${b.oddsAtBet}</td><td>${res}</td></tr>`; }).join(''); document.getElementById('myBets').innerHTML=`<table class="table"><thead><tr><th>ID</th><th>Mačs</th><th>Side</th><th>Summa</th><th>Koef</th><th>Rez</th></tr></thead><tbody>${rows}</tbody></table>`; }
+function renderMyStats(){ const u=getUserObj(); document.getElementById('myStats').innerHTML = `<div class="row"><span class="badge">+ ${u?(u.plus||0):0}</span><span class="badge">− ${u?(u.minus||0):0}</span></div>`; }
+</script>
+
+<script>
+function loadMatches(){return get(STORE.matches,[])}
+function saveMatches(m){set(STORE.matches,m)}
+function computeOdds(m){
+  const A=(m.betsA||0), B=(m.betsB||0), T=A+B, eps=1e-6, factor=0.925;
+  if(T<=eps) return [1.00,1.00];
+  const oa=factor*(T/Math.max(A,eps)), ob=factor*(T/Math.max(B,eps));
+  return [Number(oa.toFixed(2)), Number(ob.toFixed(2))];
+}
+function matchBetsOpen(m){ const now=Date.now(); const deadline = m.deadline || get(STORE.settings,{betsCloseAt:0}).betsCloseAt || 0; return !deadline || now<=deadline; }
+function ensureLogged(){ if(!currentUser()){ alert('Vispirms ieejiet'); return false } return true }
+function renderBets(){
+  const s=get(STORE.settings,{betsCloseAt:0}); document.getElementById('betsDeadline').textContent = fmt(s.betsCloseAt);
+  const u=getUserObj();
+  document.getElementById('balanceRow').innerHTML = u? `<span class="badge">Bilance likmēm: <b>${u.balanceBets??100}</b> kr</span>` : '<span class="muted">Ieiet, lai redzētu bilanci.</span>';
+  const meta=get(STORE.teamsMeta,{}); const matches=loadMatches();
+  document.getElementById('betCards').innerHTML = matches.map(m=>{
+    const [oa,ob]=computeOdds(m); const aLogo=meta[m.A]?.logo, bLogo=meta[m.B]?.logo; const canBet=matchBetsOpen(m) && m.open;
+    const A=m.betsA||0, B=m.betsB||0;
+    const oaD=(A===0 && B>0)?0:oa, obD=(B===0 && A>0)?0:ob;
+    const deadlineTxt = fmt(m.deadline||0) || '—';
+    const winA = m.winner==='A', winB = m.winner==='B';
+    return `<div class="bet-card">
+      <div class="bet-grid">
+        <div class="bet-team ${winA ? 'win-glow' : ''}">
+          ${ winA ? winnerBadgeSVG() : '' }
+          <div class="logo">${aLogo?`<img src="${aLogo}" style="width:100%;height:100%;object-fit:cover">`:''}</div>
+          <div><b>${m.A}</b></div>
+          <div class="muted">koef: <b>${oaD}</b></div>
+          ${winA ? '<div class="win-label">🏆 Uzvarētājs!</div>' : ''}
+        </div>
+        <div class="bet-vs">vs</div>
+        <div class="bet-team ${winB ? 'win-glow' : ''}">
+          ${ winB ? winnerBadgeSVG() : '' }
+          <div class="logo">${bLogo?`<img src="${bLogo}" style="width:100%;height:100%;object-fit:cover">`:''}</div>
+          <div><b>${m.B}</b></div>
+          <div class="muted">koef: <b>${obD}</b></div>
+          ${winB ? '<div class="win-label">🏆 Uzvarētājs!</div>' : ''}
+        </div>
+      </div>
+      <div class="muted" style="text-align:center;margin-top:4px">Deadline: ${deadlineTxt}</div>
+      <div class="bet-cta">${canBet?`<button class="btn" onclick="placeBet(${m.id},'A')">Likts uz ${m.A}</button><button class="btn" onclick="placeBet(${m.id},'B')">Likts uz ${m.B}</button>`:(m.winner?'<span class="match-closed-label">Mačs noslēgts</span>':'<span class="muted">Pieņemšana slēgta</span>')}</div>
+    </div>`;
+  }).join('') || '<p class="muted">Nav maču</p>';
+}
+function winnerBadgeSVG(){
+  return `<svg class="winner-badge" viewBox="0 0 64 64" aria-hidden="true">
+    <!-- flag -->
+    <path d="M44 8 l14 6 -14 6 -14 -6 z" fill="#222"/>
+    <path d="M44 8 v28" stroke="#8b5e3c" stroke-width="3" stroke-linecap="round"/>
+    <!-- trophy icon on flag -->
+    <path d="M52 12 h-6 a2 2 0 0 0 -2 2 v2 a4 4 0 0 0 4 4 h2 a4 4 0 0 0 4 -4 v-2 a2 2 0 0 0 -2 -2 z"
+          fill="#ffd54f" stroke="#caa031" stroke-width="1"/>
+    <path d="M48 22 v3 m-3 3 h6" stroke="#caa031" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- pikachu body -->
+    <g transform="translate(8,16)">
+      <ellipse cx="16" cy="24" rx="12" ry="10" fill="#ffd54f" stroke="#f4b400" stroke-width="2"/>
+      <!-- head -->
+      <ellipse cx="18" cy="12" rx="10" ry="9" fill="#ffd54f" stroke="#f4b400" stroke-width="2"/>
+      <!-- ears -->
+      <path d="M12 3 l-2 -6 a3 3 0 0 1 5 0 l0 7 z" fill="#ffd54f" stroke="#f4b400" stroke-width="2"/>
+      <path d="M24 3 l2 -6 a3 3 0 0 0 -5 0 l0 7 z" fill="#ffd54f" stroke="#f4b400" stroke-width="2"/>
+      <path d="M10 -4 l4 6" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+      <path d="M26 -4 l-4 6" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+      <!-- eyes -->
+      <circle cx="14" cy="11" r="1.4" fill="#222"/>
+      <circle cx="22" cy="11" r="1.4" fill="#222"/>
+      <!-- cheeks -->
+      <circle cx="12" cy="15" r="2" fill="#ff5252" opacity="0.85"/>
+      <circle cx="24" cy="15" r="2" fill="#ff5252" opacity="0.85"/>
+      <!-- smile -->
+      <path d="M14 17 q4 3 8 0" stroke="#333" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <!-- tiny arm holding the pole -->
+      <path d="M22 20 q8 -4 20 -10" stroke="#f4b400" stroke-width="4" stroke-linecap="round"/>
+      <!-- tail (zigzag) -->
+      <path d="M6 22 l-6 2 6 2 -4 8 12 -6" fill="#ffd54f" stroke="#f4b400" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+  </svg>`;
+}
+function placeBet(id,side){
+  if(!ensureLogged())return;
+  const matches=loadMatches(); const m=matches.find(x=>x.id===id); if(!m||!m.open){alert('Mačs slēgts');return;}
+  if(!matchBetsOpen(m)){alert('Likmes slēgtas');return;}
+  const u=getUserObj(); if(!u){alert('Vispirms ieejiet');return;}
+  const amt=parseFloat(prompt(`Summa (kr), bilance ${u.balanceBets??100} kr:`,'1')||'0'); if(!(amt>0))return;
+  if((u.balanceBets??100) < amt){ alert('Nepietiek bilance likmēm'); return; }
+  u.balanceBets = (u.balanceBets??100) - amt; saveUserObj(u);
+  if(side==='A') m.betsA=(m.betsA||0)+amt; else m.betsB=(m.betsB||0)+amt; saveMatches(matches);
+  const [oa,ob]=computeOdds(m);
+  const rec={matchId:id,side,amount:amt,ts:Date.now(),result:null,oddsAtBet:side==='A'?oa:ob,teamA:m.A,teamB:m.B};
+  const GB=get(STORE.bets,[]); GB.push({user:currentUser().username,...rec}); set(STORE.bets,GB);
+  const u2=getUserObj(); u2.bets=u2.bets||[]; u2.bets.push(rec); saveUserObj(u2);
+  renderBets(); renderMyBets();
+}
+</script>
+
+<script>
+function renderAdmin(){
+  const sec=document.getElementById('view-admin'); if(!isSuperAdmin()){ sec.innerHTML='<div class="card"><p class="muted">Nav pieejas.</p></div>'; return; }
+  const s=get(STORE.settings,{transferLockedUntil:0,betsCloseAt:0,seasonId:1});
+  const tInput=document.getElementById('transferLock'); const bInput=document.getElementById('betsClose');
+  tInput.value = s.transferLockedUntil? new Date(s.transferLockedUntil).toISOString().slice(0,16):'';
+  bInput.value = s.betsCloseAt? new Date(s.betsCloseAt).toISOString().slice(0,16):'';
+  document.getElementById('saveTimes').onclick=()=>{
+    const tVal=tInput.value? Date.parse(tInput.value+'Z'):0;
+    const bVal=bInput.value? Date.parse(bInput.value+'Z'):0;
+    set(STORE.settings,Object.assign({},s,{transferLockedUntil:tVal,betsCloseAt:bVal}));
+    alert('Saglabāts'); renderFantasy(); renderBets();
+  };
+  document.getElementById('resetSeason').onclick=()=>{
+    if(!confirm('Apstiprināt sezonas atiestatīšanu? Tiks dzēstas likmes/mači, punkti = 0. Komandas lietotājiem paliks.')) return;
+    set(STORE.backup,{players:get(STORE.players,[]), users:get(STORE.users,[]), matches:get(STORE.matches,[]), bets:get(STORE.bets,[]), teamsMeta:get(STORE.teamsMeta,{}), settings:get(STORE.settings,{})});
+    const players=get(STORE.players,[]).map(p=>Object.assign({},p,{kills:0,deaths:0,mvp:0,points:0})); set(STORE.players,players);
+    const meta=get(STORE.teamsMeta,{}); Object.keys(meta).forEach(k=>{ if('apriori' in meta[k]) delete meta[k].apriori; }); set(STORE.teamsMeta,meta);
+    const users=get(STORE.users,[]).map(u=>Object.assign({},u,{points:0,plus:0,minus:0,bets:[],teamResetUsed:false,balanceBets:100,budgetFantasy:10})); set(STORE.users,users);
+    set(STORE.matches,[]); set(STORE.bets,[]);
+    const ns=Object.assign({},get(STORE.settings,{}),{seasonId:(s.seasonId||1)+1}); set(STORE.settings,ns);
+    alert('Sezona atiestatīta. Bilances atjaunotas (Fantasy 10 kr, Likmes 100 kr).');
+    renderAll(); show('home');
+  };
+
+  const p=get(STORE.players,[]);
+  const rows=p.map(pl=>`<tr><td>${pl.username}</td><td class="muted">${pl.team}</td><td>${pl.tier}</td><td>${pl.price}</td>
+    <td><input type="number" min="0" step="1" value="${pl.kills||0}" data-edit="kills" data-u="${pl.username}"></td>
+    <td><input type="number" min="0" step="1" value="${pl.deaths||0}" data-edit="deaths" data-u="${pl.username}"></td>
+    <td><input type="number" min="0" step="1" value="${pl.mvp||0}" data-edit="mvp" data-u="${pl.username}"></td>
+    <td><b data-pts="${pl.username}">${pl.points||0}</b></td></tr>`).join('');
+  document.getElementById('playersEdit').innerHTML=`<table class="table"><thead><tr><th>Spēlētājs</th><th>Komanda</th><th>Tier</th><th>Cena</th><th>Kills</th><th>Deaths</th><th>MVP</th><th>Punkti</th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.querySelectorAll('#playersEdit [data-edit]').forEach(inp=>{
+    inp.addEventListener('input',()=>{ const u=inp.dataset.u, f=inp.dataset.edit, v=parseInt(inp.value||'0',10); const all=get(STORE.players,[]); const i=all.findIndex(x=>x.username===u); if(i>=0){ all[i][f]=v; all[i].points=(all[i].kills||0)*2 + (all[i].mvp||0)*3 - (all[i].deaths||0); set(STORE.players,all); const cell=document.querySelector(`[data-pts="${u}"]`); if(cell) cell.textContent=all[i].points; renderFantasy(); renderLeaders(); renderProfile(); } });
+  });
+
+  const meta2=get(STORE.teamsMeta,{});
+  const rowsT=Object.keys(meta2).sort((a,b)=>a.localeCompare(b,'lv')).map(name=>{
+    const m=meta2[name]||{}; const l=m.logo? `<img src="${m.logo}" style="width:24px;height:24px;border-radius:6px">` : '';
+    return `<tr><td>${name}</td><td>${l}</td><td><button class="btn" data-del="${name}">Dzēst</button></td></tr>`;
+  }).join('');
+  document.getElementById('teamsTable').innerHTML=`<table class="table"><thead><tr><th>Nosaukums</th><th>Logo</th><th></th></tr></thead><tbody>${rowsT||'<tr><td colspan="3" class="muted">Nav datu</td></tr>'}</tbody></table>`;
+  document.querySelectorAll('[data-del]').forEach(btn=> btn.addEventListener('click',()=>{ delete meta2[btn.dataset.del]; set(STORE.teamsMeta,meta2); renderAdmin(); }));
+  document.getElementById('saveTeamMeta').onclick=()=>{
+    const name=document.getElementById('teamName').value.trim(); const file=document.getElementById('teamLogo').files[0];
+    if(!name) return;
+    function finalize(logo){ meta2[name]=Object.assign({logo:logo||null}, meta2[name]||{}); set(STORE.teamsMeta,meta2); const list=new Set(get(STORE.teamList,[])); list.add(name); set(STORE.teamList,Array.from(list)); renderAdmin(); }
+    if(file){ const r=new FileReader(); r.onload=e=>finalize(e.target.result); r.readAsDataURL(file);} else finalize(null);
+  };
+  document.getElementById('bulkImport').onclick=()=>{
+    const raw=(document.getElementById('bulkTeams').value||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const list=new Set(get(STORE.teamList,[])); raw.forEach(n=>list.add(n)); set(STORE.teamList,Array.from(list)); renderAdmin();
+  }
+
+  const list=get(STORE.teamList,[]);
+  const selA=document.getElementById('newMatchA'), selB=document.getElementById('newMatchB');
+  selA.innerHTML = list.map(n=>`<option>${n}</option>`).join('');
+  selB.innerHTML = list.map(n=>`<option>${n}</option>`).join('');
+  document.getElementById('createMatch').onclick=()=>{
+    const A=selA.value, B=selB.value, dl=document.getElementById('newMatchDeadline').value;
+    if(!A||!B||A===B){ alert('Izvēlies dažādas komandas'); return; }
+    const M=loadMatches(); const id=(M[M.length-1]?.id||0)+1; const deadline = dl? Date.parse(dl+'Z'): 0;
+    M.push({id,A,B,betsA:0,betsB:0,open:true,winner:null,deadline}); saveMatches(M);
+    alert('Mačs izveidots'); renderAdminMatches(); renderBets();
+  };
+
+  renderAdminMatches();
+  renderAdminUsers();
+}
+function recalcAllPlayerPoints(){ const all=get(STORE.players,[]); all.forEach(p=>{ p.points=(p.kills||0)*2 + (p.mvp||0)*3 - (p.deaths||0); }); set(STORE.players,all); alert('Punkti pārrēķināti'); renderFantasy(); renderProfile(); renderLeaders(); }
+function renderAdminMatches(){
+  const M=loadMatches();
+  const rows=M.map(m=>{
+    const state=m.open? 'Atvērts' : ('Slēgts, uzvarētājs: '+(m.winner||'-'));
+    const deadlineTxt = fmt(m.deadline||0) || '—';
+    return `<tr><td>#${m.id}</td><td>${m.A}</td><td>${m.B}</td><td>${m.betsA||0}</td><td>${m.betsB||0}</td><td>${deadlineTxt}</td><td>${state}</td>
+      <td>
+        ${m.open? `<div class="row"><button class="btn" data-win="A" data-id="${m.id}">${m.A} uzvara</button><button class="btn" data-win="B" data-id="${m.id}">${m.B} uzvara</button></div>`:''}
+        <button class="btn danger" data-del-match="${m.id}">Dzēst</button>
+      </td></tr>`;
+  }).join('');
+  document.getElementById('adminMatches').innerHTML=`<table class="table"><thead><tr><th>ID</th><th>A</th><th>B</th><th>Stakes A</th><th>Stakes B</th><th>Deadline</th><th>Stāvoklis</th><th>Darbības</th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Nav maču</td></tr>'}</tbody></table>`;
+  document.querySelectorAll('[data-win]').forEach(btn=> btn.addEventListener('click',()=> settleMatch(parseInt(btn.dataset.id,10),btn.dataset.win)));
+  document.querySelectorAll('[data-del-match]').forEach(btn=> btn.addEventListener('click',()=> deleteMatch(parseInt(btn.getAttribute('data-del-match'),10))));
+}
+function settleMatch(id,winner){ const M=loadMatches(); const i=M.findIndex(x=>x.id===id); if(i<0)return; const m=M[i]; if(!m.open)return; m.open=false; m.winner=winner; saveMatches(M);
+  const GB=get(STORE.bets,[]); GB.forEach(b=>{ if(b.matchId===id && b.result===null){ b.result=(b.side===winner); const user=findUser(b.user); if(user){ if(b.result) user.plus=(user.plus||0)+1; else user.minus=(user.minus||0)+1; (user.bets||[]).forEach(ub=>{ if(ub.matchId===id && ub.result===null && ub.side===b.side && ub.amount===b.amount && ub.ts===b.ts){ ub.result=b.result; } }); upsertUser(user); if(currentUser() && currentUser().username.toLowerCase()===user.username.toLowerCase()) set(STORE.currentUser,user); } } }); set(STORE.bets,GB);
+  alert(`Mačs #${id} noslēgts`); renderAdminMatches(); renderBets(); renderMyBets(); renderMyStats(); renderLeaders();
+}
+function deleteMatch(id){
+  if(!confirm('Dzēst šo maču un visas saistītās likmes?')) return;
+  let M=loadMatches(); M=M.filter(x=>x.id!==id); saveMatches(M);
+  const allBets=get(STORE.bets,[]).filter(b=>b.matchId!==id); set(STORE.bets,allBets);
+  const users=get(STORE.users,[]).map(u=>{ u.bets=(u.bets||[]).filter(b=>b.matchId!==id); return u; });
+  set(STORE.users,users);
+  alert(`Mačs #${id} dzēsts.`);
+  renderAdminMatches(); renderBets(); renderMyBets(); renderLeaders();
+}
+function renderAdminUsers(){
+  const users=get(STORE.users,[]);
+  const rows=users.map(u=>{
+    const team=(u.team||[]).join(', ')||'<span class="muted">nav</span>';
+    return `<tr><td>${u.username}</td>
+      <td>${team}</td>
+      <td>${u.budgetFantasy??10}</td>
+      <td>${u.balanceBets??100}</td>
+      <td><button class="btn" data-reset="${u.username}">Reset</button></td></tr>`;
+  }).join('');
+  document.getElementById('usersTable').innerHTML = `<table class="table"><thead><tr><th>Lietotājs</th><th>Komanda</th><th>Fantasy (kr)</th><th>Likmes (kr)</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="muted">Nav lietotāju</td></tr>'}</tbody></table>`;
+  document.querySelectorAll('[data-reset]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(!confirm('Atiestatīt izvēlētā lietotāja bilances?')) return;
+      const u=findUser(btn.dataset.reset); if(!u) return;
+      u.balanceBets=100; u.budgetFantasy=10; upsertUser(u); if(currentUser() && currentUser().username.toLowerCase()===u.username.toLowerCase()) set(STORE.currentUser,u);
+      renderAdminUsers(); renderProfile(); renderBets(); renderHome();
+    });
+  });
+}
+</script>
+
+<script>
+function clearTeam(){ const u=getUserObj(); if(!u){alert('Vispirms ieejiet');return;} if(!confirm('Notīrīt komandu?')) return; u.team=[]; saveUserObj(u); renderFantasy(); renderProfile(); renderHome(); }
+function showTeamModal(username){
+  const u=findUser(username); if(!u) return;
+  const map=new Map(get(STORE.players,[]).map(x=>[x.username,x]));
+  const list=(u.team||[]).map(n=>{ const p=map.get(n); return `<div class="row" style="justify-content:space-between"><div><b>${n}</b> <span class="muted">(${p?.team||'-'}, ${p?.tier||'-'})</span></div><span class="badge">${p?.points||0} p.</span></div>` }).join('<hr>') || '<p class="muted">Nav</p>';
+  document.getElementById('teamModalTitle').textContent='Komanda — '+u.username;
+  document.getElementById('teamModalBody').innerHTML = `<div>${list}</div><div style="margin-top:6px" class="muted">Kopā: <b>${computeUserFantasyPoints(u)}</b> p.</div>`;
+  document.getElementById('teamBackdrop').style.display='flex';
+}
+function closeTeamModal(){ document.getElementById('teamBackdrop').style.display='none'; }
+</script>
+
+<script>
+window.addEventListener('load', ()=>{
+  const root=document.getElementById('app-root');
+  const loader=document.getElementById('app-loader');
+  root.style.opacity=1;
+  loader.style.opacity=0;
+  setTimeout(()=>{ loader.style.display='none'; },350);
+  show((location.hash||'#home').slice(1)||'home');
+});
+</script>
+
+<!-- === Supabase integration overrides (full-site) === -->
+<script type="module">
+import { supabase, loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB } from './supabase.js';
+
+window.loadMatches = async function(){
+  const rows = await loadMatchesDB();
+  return (rows||[]).map(r => ({
+    id: r.id,
+    A: r.A ?? r.team_a ?? r.teamA ?? r.a,
+    B: r.B ?? r.team_b ?? r.teamB ?? r.b,
+    open: r.open,
+    winner: r.winner,
+    deadline: r.deadline || 0,
+    betsA: r.betsA ?? 0,
+    betsB: r.betsB ?? 0
+  }));
+};
+
+// Hook admin create button handler inside renderAdmin after the DOM is ready
+document.addEventListener('click', (e)=>{
+  if(e.target && e.target.id==='createMatch'){
+    e.preventDefault();
+    const selA=document.getElementById('newMatchA');
+    const selB=document.getElementById('newMatchB');
+    const dl=document.getElementById('newMatchDeadline').value;
+    const A=selA?.value, B=selB?.value;
+    if(!A||!B||A===B){ alert('Izvēlies dažādas komandas'); return; }
+    const deadline = dl? Date.parse(dl+'Z'):0;
+    createMatchDB({A,B,deadline}).then(()=>{ alert('Mačs izveidots (DB)'); if(typeof renderAdmin==='function') renderAdmin(); if(typeof renderBets==='function') renderBets(); });
+  }
+});
+
+// Override settleMatch used by admin buttons
+window.settleMatch = async function(id, side){
+  await setWinnerDB(id, side);
+  if(typeof renderAdminMatches==='function') renderAdminMatches();
+  if(typeof renderBets==='function') renderBets();
+};
+
+// Override placeBet logic to also persist to DB
+const origEnsure = (typeof ensureLogged==='function') ? ensureLogged : (()=>true);
+window.placeBet = async function(id, side){
+  if(!origEnsure()) return;
+  const u = (typeof getUserObj==='function') ? getUserObj() : null;
+  if(!u){ alert('Vispirms ieejiet'); return; }
+  const amt = parseFloat(prompt(`Summa (kr), bilance ${u.balanceBets??100} kr:`,'1')||'0');
+  if(!(amt>0)) return;
+  if((u.balanceBets??100) < amt){ alert('Nepietiek bilance likmēm'); return; }
+  // Local UI balance
+  u.balanceBets=(u.balanceBets??100)-amt; if(typeof saveUserObj==='function') saveUserObj(u);
+  // Persist
+  await placeBetDB({username:u.username, match_id:id, side, amount:amt});
+  if(typeof renderBets==='function') renderBets();
+  if(typeof renderMyBets==='function') renderMyBets();
+};
+</script>
+
+
+<!-- === Firebase adapter (v5_9 FULL+) === -->
+<style>
+@keyframes neonPulse {
+  0%   { box-shadow: 0 0 6px #2cff72, 0 0 12px #2cff72; }
+  33%  { box-shadow: 0 0 6px #ff9a2c, 0 0 12px #ff9a2c; }
+  66%  { box-shadow: 0 0 6px #2cb7ff, 0 0 12px #2cb7ff; }
+  100% { box-shadow: 0 0 6px #2cff72, 0 0 12px #2cff72; }
+}
+.winner-glow { animation: neonPulse 1.8s ease-in-out infinite; border-radius: 10px; border:2px solid rgba(255,255,255,.4); }
+.pikachu-flag { position:absolute; top:-22px; right:-8px; width:42px; height:42px; background:url('https://i.imgur.com/H7VtZQG.png') no-repeat center/contain; display:none; z-index:3; }
+.winner .pikachu-flag { display:block; }
+.percent-badge { font-size:12px; opacity:.9; margin-left:6px; }
+.team-logo { width:24px; height:24px; object-fit:cover; border-radius:4px; vertical-align:middle; margin-right:6px; }
+</style>
+<script type="module">
+import {
+  registerUser, loginUser, logoutUser, getCurrentUser, getUserBalance,
+  loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB,
+  loadTeams, addTeam, subscribeRealtime
+} from './firebase.js';
+
+/* Keep v5_9 globals */
+window.getUserObj = getCurrentUser;
+window.register = async (u,p)=>{ const ok = await registerUser(u,p); if(ok){ if(typeof renderProfile==='function') renderProfile(); } return ok; };
+window.login = async (u,p)=>{ const me = await loginUser(u,p); if(me){
+  if(typeof renderProfile==='function') renderProfile();
+  if(typeof renderBets==='function') renderBets();
+  if(typeof renderMyBets==='function') renderMyBets();
+  if(typeof renderAdminMatches==='function') renderAdminMatches();
+} return me; };
+window.logout = ()=>{ logoutUser(); if(typeof renderProfile==='function') renderProfile(); };
+
+/* Map matches + percentages */
+async function mapMatches(){
+  const rows = await loadMatchesDB();
+  return (rows||[]).map(r => {
+    const total = Number(r.betsA||0)+Number(r.betsB||0);
+    const pA = total>0 ? Math.round((Number(r.betsA||0)/total)*100) : 0;
+    const pB = total>0 ? 100-pA : 0;
+    return { id:r.id, A:r.A??r.a, B:r.B??r.b, open:r.open, winner:r.winner,
+      deadline:r.deadline||0, betsA:Number(r.betsA||0), betsB:Number(r.betsB||0),
+      percentA:pA, percentB:pB };
+  });
+}
+window.loadMatches = mapMatches;
+
+/* Admin create match using dropdowns (if your UI has selects with these ids) */
+async function hydrateTeamDropdowns(){
+  const selA = document.getElementById('newMatchA');
+  const selB = document.getElementById('newMatchB');
+  if(!selA || !selB) return;
+  const teams = await loadTeams();
+  const opt = (t)=> `<option value="${t.name}" data-logo="${t.logo_url||''}">${t.name}</option>`;
+  selA.innerHTML = '<option value="">-- Team A --</option>' + teams.map(opt).join('');
+  selB.innerHTML = '<option value="">-- Team B --</option>' + teams.map(opt).join('');
+}
+window.createMatch = async (A,B,deadline=0)=>{ if(!A||!B||A===B){ alert('Izvēlies dažādas komandas'); return; } await createMatchDB({A,B,deadline}); if(typeof renderAdmin==='function') renderAdmin(); if(typeof renderBets==='function') renderBets(); };
+window.settleMatch = async (id, side)=>{ await setWinnerDB(id, side); if(typeof renderAdminMatches==='function') renderAdminMatches(); if(typeof renderBets==='function') renderBets(); };
+window.placeBet = async (id, side)=>{
+  const u = getCurrentUser(); if(!u){ alert('Vispirms ieejiet'); return; }
+  const bal = await getUserBalance(u.id);
+  const amt = parseFloat(prompt(`Summa (kr), bilance ${bal} kr:`,'1')||'0');
+  if(!(amt>0)) return; if(bal < amt){ alert('Nepietiek bilance'); return; }
+  await placeBetDB(u.id, id, side, amt);
+  if(typeof renderBets==='function') renderBets();
+  if(typeof renderMyBets==='function') renderMyBets();
+};
+
+/* Realtime repaint */
+subscribeRealtime(async ()=>{
+  if(typeof renderBets==='function') renderBets();
+  if(typeof renderAdminMatches==='function'){ renderAdminMatches(); await hydrateTeamDropdowns(); }
+  if(typeof renderMyBets==='function') renderMyBets();
+  if(typeof renderProfile==='function') renderProfile();
+});
+
+/* Enhance UI after render: add percents, winner glow, pikachu */
+function enhanceMatchCards(){
+  document.querySelectorAll('[data-match-id]').forEach(card => {
+    if(!card.querySelector('.pikachu-flag')){
+      const p = document.createElement('div'); p.className='pikachu-flag'; card.appendChild(p);
+    }
+    const winner = card.getAttribute('data-winner');
+    const aEl = card.querySelector('[data-side="A"]') || card.querySelector('.teamA');
+    const bEl = card.querySelector('[data-side="B"]') || card.querySelector('.teamB');
+    if(winner==='A' && aEl){ aEl.classList.add('winner-glow','winner'); }
+    if(winner==='B' && bEl){ bEl.classList.add('winner-glow','winner'); }
+
+    const pA = card.getAttribute('data-percent-a');
+    const pB = card.getAttribute('data-percent-b');
+    const aName = card.querySelector('.teamA-name, .aName, [data-side="A"] .name');
+    const bName = card.querySelector('.teamB-name, .bName, [data-side="B"] .name');
+    if(aName && pA && !aName.querySelector('.percent-badge')){ const s=document.createElement('span'); s.className='percent-badge'; s.textContent=`(${pA}%)`; aName.appendChild(s); }
+    if(bName && pB && !bName.querySelector('.percent-badge')){ const s=document.createElement('span'); s.className='percent-badge'; s.textContent=`(${pB}%)`; bName.appendChild(s); }
+  });
+}
+const mo = new MutationObserver(()=> enhanceMatchCards());
+mo.observe(document.body, { childList:true, subtree:true });
+document.addEventListener('DOMContentLoaded', hydrateTeamDropdowns);
+
+/* Initial paints */
+if(typeof renderBets==='function') renderBets();
+if(typeof renderProfile==='function') renderProfile();
+</script>
+
+</body>
+</html>
