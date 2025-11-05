@@ -1,18 +1,16 @@
-// Firebase module (replace config with your project)
+// Firebase modulis
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCx8pzVrtO0agiJQ9diuJSImWfqjoeth-o",
-  authDomain: "fantasy-league-fe43f.firebaseapp.com",
-  databaseURL: "https://fantasy-league-fe43f-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "fantasy-league-fe43f",
-  storageBucket: "fantasy-league-fe43f.firebasestorage.app",
-  messagingSenderId: "210230889461",
-  appId: "1:210230889461:web:49d513dd7f76fda325aebc",
-  measurementId: "G-C48C2YD5PN"
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME.firebaseapp.com",
+  databaseURL: "https://REPLACE_ME-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME.appspot.com",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
 };
-
 const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 
@@ -24,8 +22,8 @@ export async function logoutUser(){ localStorage.removeItem(LS_KEY); }
 export async function registerUser(username, password){
   const id = 'u_'+btoa(username).replace(/[^a-z0-9]/gi,'').slice(0,12);
   const exists = await get(ref(database, 'users/'+id));
-  if(exists.exists()) { alert('Пользователь уже есть'); return false; }
-  await set(ref(database, 'users/'+id), { username, password, balances:{ balanceBets:1000, balanceFantasy:500 } });
+  if(exists.exists()) { alert('Lietotājs jau eksistē'); return false; }
+  await set(ref(database, 'users/'+id), { username, password, balances:{ balanceBets:1000, balanceFantasy:8 } });
   setCurrentUser({ id, username });
   return true;
 }
@@ -33,7 +31,7 @@ export async function loginUser(username, password){
   const snap = await get(ref(database, 'users'));
   const users = snap.exists()? snap.val(): {};
   const pair = Object.entries(users).find(([id,u]) => u.username===username && u.password===password);
-  if(!pair){ alert('Неверные данные'); return null; }
+  if(!pair){ alert('Nepareizs lietotājvārds vai parole'); return null; }
   const [id, u] = pair;
   setCurrentUser({ id, username: u.username });
   return { id, username: u.username };
@@ -77,11 +75,29 @@ export async function getUserFantasyPlayers(userId){
   const byId = Object.fromEntries(all.map(p=>[p.id,p]));
   return ids.map(i=>byId[i]).filter(Boolean);
 }
+
 export async function buyFantasyPlayer(userId, playerId){
-  await set(ref(database, `userFantasy/${userId}/${playerId}`), true);
+  const bagRef = ref(database, `userFantasy/${userId}`);
+  const bagSnap = await get(bagRef);
+  const current = bagSnap.exists() ? Object.keys(bagSnap.val()) : [];
+  if (current.includes(playerId)) return true;
+  if (current.length >= 3) { alert('Limits: 3 spēlētāji'); return false; }
+
+  const all = await getFantasyPlayers();
+  const player = all.find(p => p.id === playerId);
+  const cost = player?.price ?? (player?.tier === 1 ? 6 : player?.tier === 2 ? 4 : 2);
+
   const balSnap = await get(ref(database, `users/${userId}/balances/balanceFantasy`));
   const cur = balSnap.exists()? balSnap.val(): 0;
-  await update(ref(database, `users/${userId}/balances`), { balanceFantasy: cur - 100 });
+  if(cur < cost){ alert('Nepietiek kredītu'); return false; }
+
+  await set(ref(database, `userFantasy/${userId}/${playerId}`), true);
+  await update(ref(database, `users/${userId}/balances`), { balanceFantasy: cur - cost });
+  return true;
+}
+export async function removeFantasyPlayer(userId, playerId){
+  await set(ref(database, `userFantasy/${userId}/${playerId}`), null);
+  return true;
 }
 
 export async function updateTeamLogo(teamId, logoUrl){
@@ -91,7 +107,6 @@ export async function updatePlayerStats(playerId, stats){
   await update(ref(database, `fantasy_players/${playerId}/stats`), stats);
 }
 
-// Auto-seed from local JSON if empty
 async function maybeSeed(path, url){
   const snap = await get(ref(database, path));
   if(!snap.exists()){

@@ -1,10 +1,32 @@
 {
-  "A": {
-    "name": "Команда A",
-    "logo": ""
+  "HolyPriests": {
+    "id": "HolyPriests",
+    "name": "Holy Priests",
+    "logo": "https://picsum.photos/seed/hp/400/220",
+    "teamRating": 2.47363
   },
-  "B": {
-    "name": "Команда B",
-    "logo": ""
+  "CottonPickers": {
+    "id": "CottonPickers",
+    "name": "Cotton Pickers",
+    "logo": "https://picsum.photos/seed/cp/400/220",
+    "teamRating": 2.48245
+  },
+  "911": {
+    "id": "911",
+    "name": "9/11",
+    "logo": "https://picsum.photos/seed/911/400/220",
+    "teamRating": 2.40029
+  },
+  "Turanskis": {
+    "id": "Turanskis",
+    "name": "Turanskis",
+    "logo": "https://picsum.photos/seed/tu/400/220",
+    "teamRating": 2.40699
+  },
+  "Macekli": {
+    "id": "Macekli",
+    "name": "Mācekļi",
+    "logo": "https://picsum.photos/seed/ma/400/220",
+    "teamRating": 2.05964
   }
 }
