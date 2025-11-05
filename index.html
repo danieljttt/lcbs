@@ -553,7 +553,6 @@ document.getElementById('warnConfirm').addEventListener('click',()=>{
 function triggerRosterWarning(){ warnBackdrop.style.display='flex'; warnCard.classList.remove('shake'); void warnCard.offsetWidth; warnCard.classList.add('shake'); }
 
 function renderProfile(){
-  if (!Array.isArray(users)) users = users?.data || [];
   const box=document.getElementById('authBox'); const prof=document.getElementById('profileBox'); const u=getUserObj();
   if(!u){
     box.innerHTML=`<input id="regUser" placeholder="Lietotājvārds"><input id="regPass" type="password" placeholder="Parole"><button class="btn" onclick="registerUser()">Reģistrēties</button><button class="btn" onclick="login()">Ieiet</button>`;
@@ -623,7 +622,6 @@ function computeOdds(m){
 function matchBetsOpen(m){ const now=Date.now(); const deadline = m.deadline || get(STORE.settings,{betsCloseAt:0}).betsCloseAt || 0; return !deadline || now<=deadline; }
 function ensureLogged(){ if(!currentUser()){ alert('Vispirms ieejiet'); return false } return true }
 function renderBets(){
-  if (!Array.isArray(matches)) matches = matches?.data || [];
   const s=get(STORE.settings,{betsCloseAt:0}); document.getElementById('betsDeadline').textContent = fmt(s.betsCloseAt);
   const u=getUserObj();
   document.getElementById('balanceRow').innerHTML = u? `<span class="badge">Bilance likmēm: <b>${u.balanceBets??100}</b> kr</span>` : '<span class="muted">Ieiet, lai redzētu bilanci.</span>';
@@ -779,7 +777,6 @@ function renderAdmin(){
 }
 function recalcAllPlayerPoints(){ const all=get(STORE.players,[]); all.forEach(p=>{ p.points=(p.kills||0)*2 + (p.mvp||0)*3 - (p.deaths||0); }); set(STORE.players,all); alert('Punkti pārrēķināti'); renderFantasy(); renderProfile(); renderLeaders(); }
 function renderAdminMatches(){
-  if (!Array.isArray(M)) M = M.data || [];
   const M=loadMatches();
   const rows=M.map(m=>{
     const state=m.open? 'Atvērts' : ('Slēgts, uzvarētājs: '+(m.winner||'-'));
@@ -911,44 +908,30 @@ window.placeBet = async function(id, side){
 </script>
 
 
-<!-- === Supabase backend integration (non-intrusive) === -->
+<!-- === Supabase realtime + adapters for v5_9 === -->
 <script type="module">
 import {
   registerUser, loginUser, logoutUser, getCurrentUser, getUserBalance, getUserBets,
-  loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB
+  loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB,
+  loadTeams, addTeam, subscribeRealtime
 } from './supabase.js';
 
-/** ===== User helpers (override to use Supabase) ===== */
-window.register = async function(username, password){
-  const ok = await registerUser(username, password);
-  if(ok){ console.log('Registered'); }
-  return ok;
-};
-window.login = async function(username, password){
-  const u = await loginUser(username, password);
-  // trigger possible UI refreshers if they exist
+window.getUserObj = getCurrentUser;
+window.register = async (u,p)=>{ const ok = await registerUser(u,p); if(ok){ if(typeof renderProfile==='function') renderProfile(); } return ok; };
+window.login = async (u,p)=>{ const me = await loginUser(u,p); if(me){ 
+  if(typeof renderProfile==='function') renderProfile();
   if(typeof renderBets==='function') renderBets();
   if(typeof renderMyBets==='function') renderMyBets();
-  if(typeof renderMyStats==='function') renderMyStats();
-  return u;
-};
-window.logout = function(){
-  logoutUser();
-  if(typeof renderBets==='function') renderBets();
-  if(typeof renderMyBets==='function') renderMyBets();
-  if(typeof renderMyStats==='function') renderMyStats();
-};
-window.getUserObj = function(){
-  try { return JSON.parse(localStorage.getItem('user')||'null'); } catch(e){ return null; }
-};
+  if(typeof renderAdminMatches==='function') renderAdminMatches();
+} return me; };
+window.logout = ()=>{ logoutUser(); if(typeof renderProfile==='function') renderProfile(); };
 
-/** ===== Matches (override storage to Supabase) ===== */
-window.loadMatches = async function(){
+window.loadMatches = async ()=>{
   const rows = await loadMatchesDB();
   return (rows||[]).map(r => ({
     id: r.id,
-    A: r.A ?? r.team_a ?? r.teamA,
-    B: r.B ?? r.team_b ?? r.teamB,
+    A: r.A ?? r.team_a ?? r.teamA ?? r.a,
+    B: r.B ?? r.team_b ?? r.teamB ?? r.b,
     open: r.open,
     winner: r.winner,
     deadline: r.deadline || 0,
@@ -956,67 +939,31 @@ window.loadMatches = async function(){
     betsB: Number(r.betsB || 0)
   }));
 };
-
-// Admin create match — best-effort binding to existing UI
-window.createMatch = async function(A,B,deadline=0){
-  await createMatchDB({A,B,deadline});
-  if(typeof renderAdmin==='function') renderAdmin();
-  if(typeof renderBets==='function') renderBets();
-};
-
-/** ===== Admin settle winner ===== */
-window.settleMatch = async function(id, side){
-  await setWinnerDB(id, side);
-  if(typeof renderAdminMatches==='function') renderAdminMatches();
-  if(typeof renderBets==='function') renderBets();
-};
-
-/** ===== Place Bet (deduct balance server-side, then refresh UI) ===== */
-window.placeBet = async function(matchId, side){
-  const u = getCurrentUser();
-  if(!u){ alert('Vispirms ieejiet'); return; }
+window.createMatch = async (A,B,deadline=0)=>{ if(!A||!B||A===B){ alert('Izvēlies dažādas komandas'); return; } await createMatchDB({A,B,deadline}); if(typeof renderAdmin==='function') renderAdmin(); if(typeof renderBets==='function') renderBets(); };
+window.settleMatch = async (id, side)=>{ await setWinnerDB(id, side); if(typeof renderAdminMatches==='function') renderAdminMatches(); if(typeof renderBets==='function') renderBets(); };
+window.placeBet = async (id, side)=>{
+  const u = getCurrentUser(); if(!u){ alert('Vispirms ieejiet'); return; }
   const bal = await getUserBalance(u.id);
-  const amt = parseFloat(prompt(`Summa (kr), bilance ${bal} kr:`, '1') || '0');
-  if(!(amt>0)) return;
-  if(bal < amt){ alert('Nepietiek bilance'); return; }
-  await placeBetDB(u.id, matchId, side, amt);
+  const amt = parseFloat(prompt(`Summa (kr), bilance ${bal} kr:`,'1')||'0');
+  if(!(amt>0)) return; if(bal < amt){ alert('Nepietiek bilance'); return; }
+  await placeBetDB(u.id, id, side, amt);
   if(typeof renderBets==='function') renderBets();
   if(typeof renderMyBets==='function') renderMyBets();
 };
 
-/** ===== Optional: auto-wire "Create match" button if present ===== */
-document.addEventListener('click', (e)=>{
-  if(e.target && e.target.id==='createMatch'){
-    const a = document.getElementById('newMatchA')?.value || document.getElementById('teamA')?.value || '';
-    const b = document.getElementById('newMatchB')?.value || document.getElementById('teamB')?.value || '';
-    const dlv = document.getElementById('newMatchDeadline')?.value || '';
-    const dl = dlv ? Date.parse(dlv+'Z') : 0;
-    if(!a || !b || a===b){ alert('Izvēlies dažādas komandas'); return; }
-    createMatch(a,b,dl);
-  }
+window.loadTeams = loadTeams;
+window.addTeam = addTeam;
+
+subscribeRealtime(()=>{
+  if(typeof renderBets==='function') renderBets();
+  if(typeof renderAdminMatches==='function') renderAdminMatches();
+  if(typeof renderMyBets==='function') renderMyBets();
+  if(typeof renderProfile==='function') renderProfile();
 });
-</script>
-<!-- === Подключаем supabase.js === -->
-<script type="module" src="./supabase.js">
-</script>
-<!-- === Добавление новой команды (только для админа) === -->
-<section id="team-create" class="p-4">
-  <h3>Добавить новую команду</h3>
-  <input type="text" id="teamName" placeholder="Название команды" class="border p-2 rounded w-full mb-2">
-  <input type="file" id="teamLogo" accept="image/*" class="mb-2">
-  <button onclick="handleAddTeam()" class="bg-blue-600 text-white px-4 py-2 rounded">Добавить команду</button>
-</section>
 
-<script type="module">
-  import { addTeam } from './supabase.js';
-
-  // Обработчик кнопки
-  window.handleAddTeam = async function() {
-    const name = document.getElementById('teamName').value.trim();
-    const file = document.getElementById('teamLogo').files[0];
-    if (!name) return alert("Введите название команды");
-    await addTeam(name, file);
-  };
+if(typeof renderBets==='function') renderBets();
+if(typeof renderProfile==='function') renderProfile();
 </script>
+
 </body>
 </html>
