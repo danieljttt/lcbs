@@ -1,0 +1,32 @@
+{
+  "fantasy_players": {
+    "p1": {
+      "name": "Игрок 1",
+      "team": "A",
+      "logo": "",
+      "price": 100
+    },
+    "p2": {
+      "name": "Игрок 2",
+      "team": "A",
+      "logo": "",
+      "price": 120
+    },
+    "p3": {
+      "name": "Игрок 3",
+      "team": "B",
+      "logo": "",
+      "price": 110
+    }
+  },
+  "teams_seed": {
+    "A": {
+      "name": "Команда A",
+      "logo": ""
+    },
+    "B": {
+      "name": "Команда B",
+      "logo": ""
+    }
+  }
+}

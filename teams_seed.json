@@ -1,39 +1,10 @@
 {
-  "teams": {
-    "t1": {
-      "name": "Holy Priests",
-      "logo_url": "https://i.imgur.com/2x5v3jS.png",
-      "tag": "HP",
-      "country": "LV",
-      "created_at": 0
-    },
-    "t2": {
-      "name": "Cotton Pickers",
-      "logo_url": "https://i.imgur.com/9wX2b1n.png",
-      "tag": "COT",
-      "country": "LV",
-      "created_at": 0
-    },
-    "t3": {
-      "name": "9/11",
-      "logo_url": "https://i.imgur.com/ZWmT3yT.png",
-      "tag": "911",
-      "country": "LV",
-      "created_at": 0
-    },
-    "t4": {
-      "name": "Turanskis",
-      "logo_url": "https://i.imgur.com/ds8f8vO.png",
-      "tag": "TRN",
-      "country": "LV",
-      "created_at": 0
-    },
-    "t5": {
-      "name": "Māceķļi",
-      "logo_url": "https://i.imgur.com/2o0nU2Q.png",
-      "tag": "MAC",
-      "country": "LV",
-      "created_at": 0
-    }
+  "A": {
+    "name": "Команда A",
+    "logo": ""
+  },
+  "B": {
+    "name": "Команда B",
+    "logo": ""
   }
 }
