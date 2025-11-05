@@ -852,7 +852,7 @@ window.addEventListener('load', ()=>{
 
 <!-- === Supabase integration overrides (full-site) === -->
 <script type="module">
-import { supabase, loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB } from './supabase.js';
+import { supabase, loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB } from 'https://danieljlttt.github.io/lcbs/supabase.js';
 
 window.loadMatches = async function(){
   const rows = await loadMatchesDB();
@@ -914,7 +914,7 @@ import {
   registerUser, loginUser, logoutUser, getCurrentUser, getUserBalance, getUserBets,
   loadMatchesDB, createMatchDB, setWinnerDB, placeBetDB,
   loadTeams, addTeam, subscribeRealtime
-} from './supabase.js';
+} from 'https://danieljlttt.github.io/lcbs/supabase.js';
 
 /* Keep old globals for v5_9 */
 window.getUserObj = getCurrentUser;
