@@ -134,7 +134,7 @@ const $$ = s=>Array.from(document.querySelectorAll(s));
 const fmt = n=> Math.round(Number(n||0));
 function toast(msg, ok=true){ const t=document.createElement('div'); t.className='toast'; t.style.borderColor = ok?'#19d26b':'#ff4d4f'; t.style.boxShadow = ok?'0 0 8px #19d26b':'0 0 8px #ff4d4f'; t.textContent = msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 2000); }
 function showTab(name){ $('#tab-home').classList.toggle('hide', name!=='home'); $('#tab-fantasy').classList.toggle('hide', name!=='fantasy'); $('#tab-profile').classList.toggle('hide', name!=='profile'); $$('.tabbtn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name)); }
-$$('.tabbtn').forEach(b=> b.addEventListener('click', ()=> showTab(b.dataset.tab));
+$$('.tabbtn').forEach(b=> b.addEventListener('click', ()=> showTab(b.dataset.tab)));
 
 function refreshAuthUI(){ const u=getCurrentUser(); $('#authBox').classList.toggle('hide', !!u); $('#userBox').classList.toggle('hide', !u); const isAdmin = u && u.username==='dturannn'; $('#adminPanel').classList.toggle('hide', !isAdmin); $('#fantasyAdmin').classList.toggle('hide', !isAdmin); if(u){ $('#userLabel').textContent = u.username; } }
 async function refreshBalances(){ const u=getCurrentUser(); if(!u) return; const b = await getUserBalances(u.id); $('#userBalanceBets').textContent = 'ставки: '+fmt(b.balanceBets); $('#userBalanceFantasy').textContent = 'fantasy: '+fmt(b.balanceFantasy); $('#fpVal').textContent = fmt(b.balanceFantasy); const ab = await getAdminBalance(); $('#adminBalance').textContent = 'admin: '+fmt(ab); }
