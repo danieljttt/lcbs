@@ -171,5 +171,27 @@ async function renderAll(){ refreshAuthUI(); await hydrateTeamSelects(); await r
 subscribeRealtime(()=> renderAll());
 renderAll();
 </script>
+  <!-- Fantasy -->
+<div id="tab-fantasy" class="tab hide">
+  <h2>Моя команда</h2>
+  <div id="myTeamBox" class="players-grid"></div>
+  <h2>Все игроки</h2>
+  <div id="allPlayersBox" class="players-grid"></div>
+</div>
+
+<!-- Admin -->
+<div id="tab-admin" class="tab hide">
+  <h3>Редактировать команду</h3>
+  <select id="teamSelect"></select>
+  <input id="teamLogoUrl" placeholder="URL логотипа">
+  <button id="saveTeamLogo">Сохранить</button>
+
+  <h3>Редактировать игрока</h3>
+  <select id="playerSelect"></select>
+  <input id="playerPoints" type="number" placeholder="Очки">
+  <input id="playerAchievements" placeholder="Описание достижений">
+  <button id="savePlayerStats">Сохранить</button>
+</div>
+
 </body>
 </html>
