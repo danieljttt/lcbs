@@ -1,123 +1,405 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="lv">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LCBS Fantasy</title>
 <link rel="stylesheet" href="style.css">
-<script type="module" src="firebase.js"></script>
 </head>
 <body>
-
-<header id="header">
-  <h1>LCBS Fantasy</h1>
+<header class="row">
+  <button class="tabbtn active" data-tab="home">Sākums</button>
+  <button class="tabbtn" data-tab="fantasy">Fantasy</button>
+  <button class="tabbtn" data-tab="bets">Likmes</button>
+  <button class="tabbtn" data-tab="profile">Profils</button>
+  <div style="flex:1"></div>
+  <span id="userLabel" class="badge">viesis</span>
 </header>
 
-<main id="content">
-  <section id="tab-home" class="tab">
-    <div id="authBox">
+<div id="tab-home" class="container">
+  <h2>LCBS Fantasy</h2>
+  <p class="note">Vienkārša lapa uz GitHub Pages + Firebase Realtime Database.</p>
+  <div class="section card">
+    <div class="row">
       <input id="uName" placeholder="lietotājvārds">
-      <input id="uPass" type="password" placeholder="parole">
+      <input id="uPass" placeholder="parole" type="password">
       <button id="btnReg">Reģistrēties</button>
       <button id="btnLogin">Pieteikties</button>
+      <button id="btnLogout" class="hide">Izrakstīties</button>
     </div>
-    <div id="userBox" class="hide">
-      <span id="userLabel"></span>
-      <button id="btnLogout">Izrakstīties</button>
+    <div class="row small" style="margin-top:8px">
+      <span>Likmju bilance: <b id="userBalanceBets">0</b></span>
+      <span> • </span>
+      <span>Fantasy kredīti: <b id="userBalanceFantasy">0</b></span>
     </div>
-    <div id="balancesBox">
-      <p>Likmju bilance: <b id="userBalanceBets">0</b></p>
-      <p>Fantasy kredīti: <b id="userBalanceFantasy">0</b></p>
+  </div>
+
+  <div id="adminPanel" class="card hide">
+    <h2>Administrēšana</h2>
+    <div class="section">
+      <h3>Komandas — logo</h3>
+      <div class="row">
+        <select id="teamSelect"></select>
+        <input id="teamLogoUrl" placeholder="Komandas logo URL">
+        <button id="saveTeamLogo">Saglabāt</button>
+      </div>
     </div>
-  </section>
 
-  <section id="tab-fantasy" class="tab hide">
-    <h2>Mana Fantasy komanda</h2>
-    <div id="fantasyTeam"></div>
-    <h3>Pieejamie spēlētāji</h3>
-    <div id="fantasyPlayers"></div>
-  </section>
+    <div class="section">
+      <h3>Spēlētāji — statistika</h3>
+      <div class="row">
+        <select id="playerSelect"></select>
+        <input id="playerPoints" type="number" placeholder="Punkti">
+        <input id="playerAchievements" placeholder="Sasniegumi (teksts)">
+        <button id="savePlayerStats">Saglabāt</button>
+      </div>
+    </div>
 
-  <section id="tab-bets" class="tab hide">
-    <h2>Likmes</h2>
-    <div id="matchesList"></div>
-    <h3>Rezultāti</h3>
-    <div id="resultsList"></div>
-  </section>
+    <div class="section">
+      <h3>Lietotāji — bilances</h3>
+      <button id="refreshUsersList">Atjaunot sarakstu</button>
+      <div id="usersList"></div>
+    </div>
 
-  <section id="tab-profile" class="tab hide">
-    <h2>Profils</h2>
-    <div id="adminPanel" class="hide"></div>
-  </section>
-</main>
+    <div class="section">
+      <h3>Spēles (Likmes) — administrēšana</h3>
+      <div class="row">
+        <input id="mTeam1" placeholder="Komanda 1">
+        <input id="mTeam2" placeholder="Komanda 2">
+        <input id="mTournament" placeholder="Turnīrs">
+        <input id="mTime" placeholder="Laiks (YYYY-MM-DD HH:MM)">
+        <button id="mAdd">Pievienot spēli</button>
+      </div>
+      <p class="note">Lai noslēgtu spēli, noklikšķini uz tās kartes “Uzvarētājs” un “Aizvērt spēli”.</p>
+    </div>
+  </div>
+</div>
 
-<!-- Telegram style bottom navigation -->
+<div id="tab-fantasy" class="container hide">
+  <h2>Mana komanda (maks. 3 spēlētāji)</h2>
+  <div id="myTeamBox"></div>
+  <h2>Visi spēlētāji</h2>
+  <div id="allPlayersBox"></div>
+</div>
+
+<div id="tab-bets" class="container hide">
+  <h2>Likmes</h2>
+  <div id="matchList" class="match-list"></div>
+  <h2>Rezultāti</h2>
+  <div id="resultList" class="match-list"></div>
+</div>
+
+<div id="tab-profile" class="container hide">
+  <div class="usercard">
+    <div class="row">
+      <span class="muted small">Mans ID:</span>
+      <span id="meId" class="small">—</span>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="firebase.js"></script>
+<script type="module">
+import { database, getCurrentUser, registerUser, loginUser, logoutUser, getUserBalances, getAdminBalance,
+         getFantasyPlayers, getUserFantasyPlayers, buyFantasyPlayer, removeFantasyPlayer,
+         getTeams, updateTeamLogo, updatePlayerStats, getAllUsers, updateUserBalances,
+         getMatches, addMatch, placeBet, closeMatchAndPayout } from './firebase.js';
+
+// helpers
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const fmt = n => (n||0).toLocaleString('lv-LV');
+
+function showTab(name){
+  $('#tab-home').classList.toggle('hide', name!=='home');
+  $('#tab-fantasy').classList.toggle('hide', name!=='fantasy');
+  $('#tab-bets').classList.toggle('hide', name!=='bets');
+  $('#tab-profile').classList.toggle('hide', name!=='profile');
+  $$('.tabbtn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
+}
+$$('.tabbtn').forEach(b=> b.addEventListener('click', ()=> showTab(b.dataset.tab)));
+
+function refreshAuthUI(){
+  const u=getCurrentUser();
+  $('#btnLogout').classList.toggle('hide', !u);
+  $('#userLabel').textContent = u ? u.username : 'viesis';
+  const isAdmin = u && u.username==='dturannn';
+  $('#adminPanel').classList.toggle('hide', !isAdmin);
+}
+async function refreshBalances(){
+  const u=getCurrentUser(); if(!u) return;
+  const b=await getUserBalances(u.id);
+  $('#userBalanceBets').textContent = fmt(b.balanceBets);
+  $('#userBalanceFantasy').textContent = fmt(b.balanceFantasy);
+  $('#meId').textContent = u.id;
+}
+
+// Auth
+$('#btnReg').onclick = async () => {
+  const u=$('#uName').value.trim(), p=$('#uPass').value.trim();
+  if(!u||!p) return alert('Lūdzu, ievadi lietotājvārdu un paroli');
+  const ok = await registerUser(u,p);
+  if(ok){ refreshAuthUI(); await setInitialFantasyIfNeeded(); await refreshBalances(); renderAll(); }
+};
+$('#btnLogin').onclick = async () => {
+  const u=$('#uName').value.trim(), p=$('#uPass').value.trim();
+  const me = await loginUser(u,p);
+  if(me){ refreshAuthUI(); await setInitialFantasyIfNeeded(); await refreshBalances(); renderAll(); }
+};
+$('#btnLogout').onclick = async () => { await logoutUser(); refreshAuthUI(); };
+
+// Fantasy UI (твой существующий рендер — оставлен как был)
+async function renderFantasyTab() {
+  const me = getCurrentUser(); if(!me) return;
+  const [allPlayers, myPlayers] = await Promise.all([getFantasyPlayers(), getUserFantasyPlayers(me.id)]);
+  const myIds = new Set(myPlayers.map(p=>p.id));
+
+  const myBox=$('#myTeamBox'); myBox.innerHTML='';
+  myPlayers.slice(0,3).forEach(p => myBox.innerHTML += playerCardHTML(p, true));
+  for(let i=myPlayers.length;i<3;i++){ myBox.innerHTML += emptySlotHTML(); }
+
+  const allBox=$('#allPlayersBox'); allBox.innerHTML='';
+  allPlayers.forEach(p => {
+    const owned = myIds.has(p.id);
+    allBox.innerHTML += playerCardHTML(p, owned);
+  });
+
+  document.querySelectorAll('.buyBtn').forEach(btn => btn.addEventListener('click', async () => {
+    const me = getCurrentUser(); if(!me) return alert('Ielogojies!');
+    const ok = await buyFantasyPlayer(me.id, btn.dataset.id);
+    if(ok){ await refreshBalances(); renderFantasyTab(); }
+  }));
+  document.querySelectorAll('.rmBtn').forEach(btn => btn.addEventListener('click', async () => {
+    const me = getCurrentUser(); if(!me) return;
+    await removeFantasyPlayer(me.id, btn.dataset.id);
+    renderFantasyTab();
+  }));
+}
+function playerCardHTML(p, owned){
+  const tier = p.tier ?? 3;
+  const cost = p.price ?? (tier===1?6:(tier===2?4:2));
+  const tierCls = tier===1?'tier-1':(tier===2?'tier-2':'tier-3');
+  const logo = p.logo || p.avatar || 'https://picsum.photos/400/220?blur=2';
+  const s = {
+    premier: p.premierRating ?? 0,
+    hltv: p.hltv ?? 0,
+    kd: p.kd ?? 0,
+    adr: p.adr ?? 0,
+    hs: p.hs ?? 0,
+    pre3v3: p.pre3v3 ?? 0,
+    teamRating: p.teamRating ?? 0,
+    points: p.stats?.points ?? 0,
+    achievements: p.stats?.achievements ?? ''
+  };
+  return `<div class="card ${tierCls}">
+    <img src="${logo}" alt="${p.name}">
+    <div class="title">${p.name}</div>
+    <div class="muted small">${p.team}</div>
+    <div class="small">Tier ${tier} • ${cost} kredīti</div>
+    <div class="small">HLTV: ${s.hltv} • K/D: ${s.kd} • ADR: ${s.adr} • HS ${s.hs}%</div>
+    <div class="small">Premier: ${s.premier} • 3v3: ${s.pre3v3} • Team: ${s.teamRating}</div>
+    ${s.achievements ? `<div class="small">${s.achievements}</div>` : ''}
+    ${owned 
+      ? `<div class="badge">Sastāvā</div> <button class="rmBtn" data-id="${p.id}">✖</button>`
+      : `<button class="buyBtn" data-id="${p.id}">Pirkt</button>`}
+  </div>`;
+}
+function emptySlotHTML(){
+  return `<div class="card" style="opacity:.6; text-align:center;">
+    <div class="title">Tukša vieta</div>
+    <div class="muted small">Pievieno spēlētāju no saraksta</div>
+  </div>`;
+}
+
+// Bets UI (оставлен как у тебя)
+async function renderBetsTab(){
+  const { open, closed } = await getMatches();
+  const list = $('#matchList'); const res = $('#resultList');
+  list.innerHTML=''; res.innerHTML='';
+
+  open.forEach(m => list.appendChild(matchCard(m, false)));
+  closed.forEach(m => res.appendChild(matchCard(m, true)));
+
+  // Admin add match
+  $('#mAdd')?.addEventListener('click', async () => {
+    const team1 = $('#mTeam1').value.trim();
+    const team2 = $('#mTeam2').value.trim();
+    const tournament = $('#mTournament').value.trim();
+    const time = $('#mTime').value.trim();
+    if(!team1||!team2) return alert('Komandas?');
+    await addMatch({ team1, team2, tournament, time });
+    renderBetsTab();
+  });
+}
+
+function matchCard(m, closed){
+  const wrap = document.createElement('div');
+  wrap.className = 'match-card';
+  wrap.innerHTML = `
+    <div class="match-head">
+      <div class="team"><img class="logo" src="${m.logo1||'https://picsum.photos/seed/t1/64/64'}"><b>${m.team1}</b></div>
+      <span class="vs">vs</span>
+      <div class="team"><img class="logo" src="${m.logo2||'https://picsum.photos/seed/t2/64/64'}"><b>${m.team2}</b></div>
+    </div>
+    <div class="kicker">${m.tournament||'Turnīrs'} • ${m.time||''}</div>
+    <hr>
+    <div class="match-actions"></div>
+  `;
+  const actions = wrap.querySelector('.match-actions');
+  if(!closed){
+    actions.innerHTML = `
+      <select class="pick">
+        <option value="team1">${m.team1}</option>
+        <option value="team2">${m.team2}</option>
+      </select>
+      <input class="amt" type="number" min="1" value="1" style="width:90px" placeholder="Summa">
+      <button class="betBtn">Likmēt</button>
+      <span class="note">Min 1 kredīts. Banka tiek dalīta starp uzvarētājiem, 7.5% adminam.</span>
+    `;
+    actions.querySelector('.betBtn').addEventListener('click', async () => {
+      const me = getCurrentUser(); if(!me) return alert('Ielogojies!');
+      const team = actions.querySelector('.pick').value;
+      const amt = Math.max(1, Math.floor(parseFloat(actions.querySelector('.amt').value)||0));
+      const ok = await placeBet(me.id, m.id, team, amt);
+      if(ok){ alert('Likme pieņemta'); await refreshBalances(); }
+      else { alert('Likmi nevarēja pieņemt'); }
+    });
+
+    const u = getCurrentUser(); const isAdmin = u && u.username==='dturannn';
+    if(isAdmin){
+      const adminRow = document.createElement('div');
+      adminRow.className='row'; adminRow.style.marginTop='8px';
+      adminRow.innerHTML = `
+        <select class="winPick">
+          <option value="team1">${m.team1}</option>
+          <option value="team2">${m.team2}</option>
+        </select>
+        <button class="closeBtn">Aizvērt spēli</button>
+      `;
+      actions.appendChild(adminRow);
+      adminRow.querySelector('.closeBtn').addEventListener('click', async () => {
+        const w = adminRow.querySelector('.winPick').value;
+        await closeMatchAndPayout(m.id, w);
+        alert('Spēle aizvērta, laimesti sadalīti');
+        renderBetsTab(); await refreshBalances();
+      });
+    }
+  } else {
+    const winnerName = m.winner==='team1'? m.team1 : (m.winner==='team2'? m.team2 : '—');
+    actions.innerHTML = `<span class="badge">Uzvarētājs: ${winnerName}</span> <span class="small">Banka: ${fmt(m.pool||0)} • Admin: ${fmt(m.adminCut||0)}</span>`;
+  }
+  return wrap;
+}
+
+// Users list (admin)
+async function renderUsersList(){
+  const list = await getAllUsers();
+  const box = $('#usersList'); box.innerHTML = '';
+  list.forEach(u => {
+    const bets = u.balances?.balanceBets ?? 0;
+    const fan = u.balances?.balanceFantasy ?? 0;
+    const id = u.id;
+    box.innerHTML += `<div class="card">
+      <div><b>${u.username}</b> <span class="muted small">(${id})</span></div>
+      <div class="row" style="margin-top:6px">
+        <label class="small">Likmes: <input id="bets-${id}" type="number" value="${bets}"></label>
+        <label class="small">Fantasy: <input id="fan-${id}" type="number" value="${fan}"></label>
+        <button class="saveUserBtn" data-id="${id}">💾 Saglabāt</button>
+      </div>
+    </div>`;
+  });
+  document.querySelectorAll('.saveUserBtn').forEach(btn => btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    const newBets = parseFloat(document.querySelector('#bets-'+id).value)||0;
+    const newFan  = parseFloat(document.querySelector('#fan-'+id).value)||0;
+    await updateUserBalances(id, { balanceBets: newBets, balanceFantasy: newFan });
+    alert('Bilance atjaunota');
+    await refreshBalances();
+  }));
+}
+$('#refreshUsersList').addEventListener('click', renderUsersList);
+
+// boot
+refreshAuthUI();
+</script>
+
+<!-- ▼▼▼ ДОБАВЛЕНО: нижняя навигация + сохранение вкладки + bounce + возврат fantasy-кредитов ▼▼▼ -->
+
+<!-- Bottom navigation (Telegram-style) -->
 <nav class="bottom-nav">
-  <button data-tab="home" class="active">
+  <button data-tab="home" class="bnav-btn" aria-label="Sākums">
     <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V21H3V9.5z"/></svg>
     <span>Sākums</span>
   </button>
-  <button data-tab="fantasy">
+  <button data-tab="fantasy" class="bnav-btn" aria-label="Fantasy">
     <svg viewBox="0 0 24 24"><path d="M12 2l9 4v6c0 5-4 9-9 9s-9-4-9-9V6l9-4z"/></svg>
     <span>Fantasy</span>
   </button>
-  <button data-tab="bets">
+  <button data-tab="bets" class="bnav-btn" aria-label="Likmes">
     <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>
     <span>Likmes</span>
   </button>
-  <button data-tab="profile">
+  <button data-tab="profile" class="bnav-btn" aria-label="Profils">
     <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm-9 9c0-4 4-7 9-7s9 3 9 7"/></svg>
     <span>Profils</span>
   </button>
 </nav>
 
-<script type="module">
-import { getCurrentUser, registerUser, loginUser, logoutUser, getUserBalances, refreshFantasy, renderAll, setInitialFantasyIfNeeded } from './firebase.js';
-
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
-
-function showTab(name){
-  $$('.tab').forEach(t=>t.classList.toggle('hide',t.id!=='tab-'+name));
-  $$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
-  localStorage.setItem('lcbs_tab',name);
-}
-$$('.bottom-nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-showTab(localStorage.getItem('lcbs_tab')||'home');
-
-async function refreshAuthUI(){
-  const u=getCurrentUser();
-  $('#authBox').classList.toggle('hide',!!u);
-  $('#userBox').classList.toggle('hide',!u);
-  if(u){ $('#userLabel').textContent=u.username; }
-}
-async function refreshBalances(){
-  const u=getCurrentUser();
-  if(!u) return;
-  const b=await getUserBalances(u.id);
-  $('#userBalanceBets').textContent=b.balanceBets||0;
-  $('#userBalanceFantasy').textContent=b.balanceFantasy||0;
-}
-
-$('#btnReg').onclick = async ()=>{
-  const u=$('#uName').value.trim(), p=$('#uPass').value.trim();
-  if(!u||!p) return alert('Ievadi lietotājvārdu un paroli');
-  const ok=await registerUser(u,p);
-  if(ok){ refreshAuthUI(); await setInitialFantasyIfNeeded(); await refreshBalances(); renderAll(); }
-};
-$('#btnLogin').onclick = async ()=>{
-  const u=$('#uName').value.trim(), p=$('#uPass').value.trim();
-  const me=await loginUser(u,p);
-  if(me){ refreshAuthUI(); await setInitialFantasyIfNeeded(); await refreshBalances(); renderAll(); }
-};
-$('#btnLogout').onclick = async ()=>{
-  await logoutUser();
-  refreshAuthUI();
-  showTab('home');
-};
-
-refreshAuthUI();
-refreshBalances();
+<script>
+  // Сохраняем оригинальный showTab и расширяем его (активное состояние + localStorage + bounce)
+  window._origShowTab = window.showTab || function(name){
+    document.querySelector('#tab-home')?.classList.toggle('hide', name!=='home');
+    document.querySelector('#tab-fantasy')?.classList.toggle('hide', name!=='fantasy');
+    document.querySelector('#tab-bets')?.classList.toggle('hide', name!=='bets');
+    document.querySelector('#tab-profile')?.classList.toggle('hide', name!=='profile');
+    document.querySelectorAll('.tabbtn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
+  };
+  window.showTab = function(name){
+    try{ window._origShowTab(name); }catch(e){ console.warn(e); }
+    document.querySelectorAll('.bottom-nav .bnav-btn').forEach(b=>{
+      const active = b.dataset.tab === name;
+      b.classList.toggle('active', active);
+      if(active){
+        b.classList.add('bounce'); setTimeout(()=>b.classList.remove('bounce'), 500);
+      }
+    });
+    try{ localStorage.setItem('lcbs_tab', name); }catch{}
+  };
+  // Привязываем нижние кнопки
+  document.querySelectorAll('.bottom-nav .bnav-btn').forEach(b=>{
+    b.addEventListener('click', ()=> window.showTab(b.dataset.tab));
+  });
+  // Восстанавливаем вкладку
+  (function(){
+    let t = 'home';
+    try{ t = localStorage.getItem('lcbs_tab') || 'home'; }catch{}
+    window.showTab(t);
+  })();
 </script>
+
+<script type="module">
+  // Возврат fantasy-кредитов при удалении игрока (front-only)
+  import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  import { database, getCurrentUser, getFantasyPlayers } from './firebase.js';
+  document.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('.rmBtn');
+    if(!btn) return;
+    try{
+      const me = getCurrentUser(); if(!me) return;
+      const id = btn.dataset.id; if(!id) return;
+      const all = await getFantasyPlayers();
+      const p = all.find(x=> x.id===id);
+      if(!p) return;
+      const cost = p.price ?? (p.tier===1?6:(p.tier===2?4:2));
+      const balRef = ref(database, `users/${me.id}/balances/balanceFantasy`);
+      const snap = await get(balRef);
+      const cur = snap.exists()? snap.val(): 0;
+      await update(ref(database, `users/${me.id}/balances`), { balanceFantasy: cur + cost });
+    }catch(err){ console.warn('refund failed', err); }
+  });
+</script>
+
+<!-- ▲▲▲ ДОБАВЛЕНО ▲▲▲ -->
+
 </body>
 </html>
