@@ -3,13 +3,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebas
 import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME.firebaseapp.com",
-  databaseURL: "https://REPLACE_ME-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "REPLACE_ME",
-  storageBucket: "REPLACE_ME.appspot.com",
-  messagingSenderId: "REPLACE_ME",
-  appId: "REPLACE_ME"
+  apiKey: "AIzaSyCx8pzVrtO0agiJQ9diuJSImWfqjoeth-o",
+  authDomain: "fantasy-league-fe43f.firebaseapp.com",
+  databaseURL: "https://fantasy-league-fe43f-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fantasy-league-fe43f",
+  storageBucket: "fantasy-league-fe43f.firebasestorage.app",
+  messagingSenderId: "210230889461",
+  appId: "1:210230889461:web:49d513dd7f76fda325aebc",
+  measurementId: "G-C48C2YD5PN"
 };
 const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
