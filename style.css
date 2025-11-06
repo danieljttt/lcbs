@@ -23,3 +23,12 @@ button { cursor:pointer; }
 .tier-3 { border-top:4px solid #9bd97d; }
 #myTeamBox, #allPlayersBox { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; }
 .usercard { background:#0f1622; padding:10px; border:1px solid #1e2a3d; border-radius:10px; }
+.match-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+.match-card { background:#101826; border:1px solid #1e2a3d; border-radius:10px; padding:12px; }
+.match-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.team { display:flex; align-items:center; gap:8px; }
+.logo { width:28px; height:28px; border-radius:6px; background:#0b111b; object-fit:cover; }
+.vs { padding:0 6px; color:#8aa2c8; font-weight:700; }
+.match-actions { display:flex; gap:6px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+.kicker { font-size:11px; color:#8aa2c8; }
+hr { border:0; border-top:1px solid #1e2a3d; margin:10px 0; }

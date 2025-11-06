@@ -10,6 +10,7 @@
 <header class="row">
   <button class="tabbtn active" data-tab="home">Sākums</button>
   <button class="tabbtn" data-tab="fantasy">Fantasy</button>
+  <button class="tabbtn" data-tab="bets">Likmes</button>
   <button class="tabbtn" data-tab="profile">Profils</button>
   <div style="flex:1"></div>
   <span id="userLabel" class="badge">viesis</span>
@@ -59,6 +60,18 @@
       <button id="refreshUsersList">Atjaunot sarakstu</button>
       <div id="usersList"></div>
     </div>
+
+    <div class="section">
+      <h3>Spēles (Likmes) — administrēšana</h3>
+      <div class="row">
+        <input id="mTeam1" placeholder="Komanda 1">
+        <input id="mTeam2" placeholder="Komanda 2">
+        <input id="mTournament" placeholder="Turnīrs">
+        <input id="mTime" placeholder="Laiks (YYYY-MM-DD HH:MM)">
+        <button id="mAdd">Pievienot spēli</button>
+      </div>
+      <p class="note">Lai noslēgtu spēli, noklikšķini uz tās kartes “Uzvarētājs” un “Aizvērt spēli”.</p>
+    </div>
   </div>
 </div>
 
@@ -67,6 +80,13 @@
   <div id="myTeamBox"></div>
   <h2>Visi spēlētāji</h2>
   <div id="allPlayersBox"></div>
+</div>
+
+<div id="tab-bets" class="container hide">
+  <h2>Likmes</h2>
+  <div id="matchList" class="match-list"></div>
+  <h2>Rezultāti</h2>
+  <div id="resultList" class="match-list"></div>
 </div>
 
 <div id="tab-profile" class="container hide">
@@ -80,9 +100,10 @@
 
 <script type="module" src="firebase.js"></script>
 <script type="module">
-import { database, getCurrentUser, registerUser, loginUser, logoutUser, getUserBalances, getAdminBalance,
+import { database, getCurrentUser, registerUser, loginUser, logoutUser, getUserBalances,
          getFantasyPlayers, getUserFantasyPlayers, buyFantasyPlayer, removeFantasyPlayer,
-         getTeams, updateTeamLogo, updatePlayerStats, getAllUsers, updateUserBalances } from './firebase.js';
+         getTeams, updateTeamLogo, updatePlayerStats, getAllUsers, updateUserBalances,
+         getMatches, addMatch, placeBet, closeMatchAndPayout } from './firebase.js';
 
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
@@ -91,12 +112,14 @@ const fmt = n => (n||0).toLocaleString('lv-LV');
 function showTab(name){
   $('#tab-home').classList.toggle('hide', name!=='home');
   $('#tab-fantasy').classList.toggle('hide', name!=='fantasy');
+  $('#tab-bets').classList.toggle('hide', name!=='bets');
   $('#tab-profile').classList.toggle('hide', name!=='profile');
   $$('.tabbtn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
 }
 $$('.tabbtn').forEach(b => b.addEventListener('click', () => {
   showTab(b.dataset.tab);
   if(b.dataset.tab==='fantasy') renderFantasyTab();
+  if(b.dataset.tab==='bets') renderBetsTab();
 }));
 
 function refreshAuthUI(){
@@ -143,15 +166,16 @@ async function renderFantasyTab() {
   });
 
   document.querySelectorAll('.buyBtn').forEach(btn => btn.addEventListener('click', async () => {
+    const me = getCurrentUser(); if(!me) return alert('Ielogojies!');
     const ok = await buyFantasyPlayer(me.id, btn.dataset.id);
     if(ok){ await refreshBalances(); renderFantasyTab(); }
   }));
   document.querySelectorAll('.rmBtn').forEach(btn => btn.addEventListener('click', async () => {
+    const me = getCurrentUser(); if(!me) return;
     await removeFantasyPlayer(me.id, btn.dataset.id);
     renderFantasyTab();
   }));
 }
-
 function playerCardHTML(p, owned){
   const tier = p.tier ?? 3;
   const cost = p.price ?? (tier===1?6:(tier===2?4:2));
@@ -181,7 +205,6 @@ function playerCardHTML(p, owned){
       : `<button class="buyBtn" data-id="${p.id}">Pirkt</button>`}
   </div>`;
 }
-
 function emptySlotHTML(){
   return `<div class="card" style="opacity:.6; text-align:center;">
     <div class="title">Tukša vieta</div>
@@ -189,25 +212,87 @@ function emptySlotHTML(){
   </div>`;
 }
 
-async function hydrateAdmin() {
-  const [teams, players] = await Promise.all([getTeams(), getFantasyPlayers()]);
-  const tSel = $('#teamSelect'); tSel.innerHTML = Object.values(teams).map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
-  const pSel = $('#playerSelect'); pSel.innerHTML = players.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-}
-$('#saveTeamLogo').addEventListener('click', async () => {
-  const id = $('#teamSelect').value, url=$('#teamLogoUrl').value.trim();
-  if(!id||!url) return;
-  await updateTeamLogo(id, url);
-  alert('Logo saglabāts');
-  await hydrateAdmin(); await renderFantasyTab();
-});
-$('#savePlayerStats').addEventListener('click', async () => {
-  const id=$('#playerSelect').value, pts=parseInt($('#playerPoints').value)||0, ach=$('#playerAchievements').value.trim();
-  await updatePlayerStats(id, { points: pts, achievements: ach });
-  alert('Statistika saglabāta');
-  await renderFantasyTab();
-});
+// Bets UI
+async function renderBetsTab(){
+  const { open, closed } = await getMatches();
+  const list = $('#matchList'); const res = $('#resultList');
+  list.innerHTML=''; res.innerHTML='';
 
+  open.forEach(m => list.appendChild(matchCard(m, false)));
+  closed.forEach(m => res.appendChild(matchCard(m, true)));
+
+  // Admin add match
+  $('#mAdd')?.addEventListener('click', async () => {
+    const team1 = $('#mTeam1').value.trim();
+    const team2 = $('#mTeam2').value.trim();
+    const tournament = $('#mTournament').value.trim();
+    const time = $('#mTime').value.trim();
+    if(!team1||!team2) return alert('Komandas?');
+    await addMatch({ team1, team2, tournament, time });
+    renderBetsTab();
+  });
+}
+
+function matchCard(m, closed){
+  const wrap = document.createElement('div');
+  wrap.className = 'match-card';
+  wrap.innerHTML = `
+    <div class="match-head">
+      <div class="team"><img class="logo" src="${m.logo1||'https://picsum.photos/seed/t1/64/64'}"><b>${m.team1}</b></div>
+      <span class="vs">vs</span>
+      <div class="team"><img class="logo" src="${m.logo2||'https://picsum.photos/seed/t2/64/64'}"><b>${m.team2}</b></div>
+    </div>
+    <div class="kicker">${m.tournament||'Turnīrs'} • ${m.time||''}</div>
+    <hr>
+    <div class="match-actions"></div>
+  `;
+  const actions = wrap.querySelector('.match-actions');
+  if(!closed){
+    actions.innerHTML = `
+      <select class="pick">
+        <option value="team1">${m.team1}</option>
+        <option value="team2">${m.team2}</option>
+      </select>
+      <input class="amt" type="number" min="1" value="1" style="width:90px" placeholder="Summa">
+      <button class="betBtn">Likmēt</button>
+      <span class="note">Min 1 kredīts. Banka tiek dalīta starp uzvarētājiem, 7.5% adminam.</span>
+    `;
+    actions.querySelector('.betBtn').addEventListener('click', async () => {
+      const me = getCurrentUser(); if(!me) return alert('Ielogojies!');
+      const team = actions.querySelector('.pick').value;
+      const amt = Math.max(1, Math.floor(parseFloat(actions.querySelector('.amt').value)||0));
+      const ok = await placeBet(me.id, m.id, team, amt);
+      if(ok){ alert('Likme pieņemta'); await refreshBalances(); }
+      else { alert('Likmi nevarēja pieņemt'); }
+    });
+
+    const u = getCurrentUser(); const isAdmin = u && u.username==='dturannn';
+    if(isAdmin){
+      const adminRow = document.createElement('div');
+      adminRow.className='row'; adminRow.style.marginTop='8px';
+      adminRow.innerHTML = `
+        <select class="winPick">
+          <option value="team1">${m.team1}</option>
+          <option value="team2">${m.team2}</option>
+        </select>
+        <button class="closeBtn">Aizvērt spēli</button>
+      `;
+      actions.appendChild(adminRow);
+      adminRow.querySelector('.closeBtn').addEventListener('click', async () => {
+        const w = adminRow.querySelector('.winPick').value;
+        await closeMatchAndPayout(m.id, w);
+        alert('Spēle aizvērta, laimesti sadalīti');
+        renderBetsTab(); await refreshBalances();
+      });
+    }
+  } else {
+    const winnerName = m.winner==='team1'? m.team1 : (m.winner==='team2'? m.team2 : '—');
+    actions.innerHTML = `<span class="badge">Uzvarētājs: ${winnerName}</span> <span class="small">Banka: ${fmt(m.pool||0)} • Admin: ${fmt(m.adminCut||0)}</span>`;
+  }
+  return wrap;
+}
+
+// Users list (admin)
 async function renderUsersList(){
   const list = await getAllUsers();
   const box = $('#usersList'); box.innerHTML = '';
@@ -235,7 +320,7 @@ async function renderUsersList(){
 }
 $('#refreshUsersList').addEventListener('click', renderUsersList);
 
-refreshAuthUI(); hydrateAdmin();
+refreshAuthUI();
 </script>
 </body>
 </html>

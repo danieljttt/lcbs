@@ -1,285 +1,57 @@
 {
   "fantasy_players": {
-    "p_toothfairy": {
-      "id": "p_toothfairy",
+    "p1": {
+      "id": "p1",
       "name": "toothfairy",
       "team": "Holy Priests",
-      "premierRating": 24000,
+      "tier": 1,
+      "price": 6,
       "hltv": 1.31,
       "kd": 1.22,
       "adr": 95,
       "hs": 45,
-      "pre3v3": 3.95712,
-      "teamRating": 2.47363,
-      "tier": 1,
-      "price": 6,
-      "logo": "https://picsum.photos/seed/p_toothfairy/400/220",
+      "premierRating": 24000,
+      "pre3v3": 3.95,
+      "teamRating": 2.47,
+      "logo": "https://picsum.photos/seed/p1/400/220",
       "stats": {
         "points": 0,
         "achievements": ""
       }
     },
-    "p_kirbtich": {
-      "id": "p_kirbtich",
-      "name": "Kirbtich",
-      "team": "9/11",
-      "premierRating": 23500,
-      "hltv": 1.27,
-      "kd": 1.19,
-      "adr": 93,
-      "hs": 44,
-      "pre3v3": 3.66,
-      "teamRating": 2.40029,
-      "tier": 1,
-      "price": 6,
-      "logo": "https://picsum.photos/seed/p_kirbtich/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_namejs": {
-      "id": "p_namejs",
-      "name": "namejs",
-      "team": "Cotton Pickers",
-      "premierRating": 23000,
-      "hltv": 1.25,
-      "kd": 1.16,
-      "adr": 92,
-      "hs": 47,
-      "pre3v3": 3.55,
-      "teamRating": 2.48245,
-      "tier": 1,
-      "price": 6,
-      "logo": "https://picsum.photos/seed/p_namejs/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_sahtoms": {
-      "id": "p_sahtoms",
-      "name": "Sahtoms",
-      "team": "Mācekļi",
-      "premierRating": 22500,
-      "hltv": 1.22,
-      "kd": 1.14,
-      "adr": 91,
-      "hs": 46,
-      "pre3v3": 3.41,
-      "teamRating": 2.05964,
-      "tier": 1,
-      "price": 6,
-      "logo": "https://picsum.photos/seed/p_sahtoms/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_wide": {
-      "id": "p_wide",
-      "name": "Wide",
-      "team": "Holy Priests",
-      "premierRating": 21000,
-      "hltv": 1.18,
-      "kd": 1.1,
-      "adr": 88,
-      "hs": 41,
-      "pre3v3": 3.12,
-      "teamRating": 2.47363,
-      "tier": 1,
-      "price": 6,
-      "logo": "https://picsum.photos/seed/p_wide/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_wade": {
-      "id": "p_wade",
-      "name": "WADE",
-      "team": "Turanskis",
-      "premierRating": 20000,
-      "hltv": 1.16,
-      "kd": 1.09,
-      "adr": 90,
-      "hs": 43,
-      "pre3v3": 3.08,
-      "teamRating": 2.40699,
-      "tier": 2,
-      "price": 4,
-      "logo": "https://picsum.photos/seed/p_wade/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_family": {
-      "id": "p_family",
-      "name": "family",
-      "team": "Cotton Pickers",
-      "premierRating": 18000,
-      "hltv": 1.12,
-      "kd": 1.05,
-      "adr": 86,
-      "hs": 42,
-      "pre3v3": 2.98,
-      "teamRating": 2.48245,
-      "tier": 2,
-      "price": 4,
-      "logo": "https://picsum.photos/seed/p_family/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_rubber": {
-      "id": "p_rubber",
-      "name": "Rubber-",
-      "team": "Turanskis",
-      "premierRating": 17000,
-      "hltv": 1.08,
-      "kd": 1.03,
-      "adr": 83,
-      "hs": 42,
-      "pre3v3": 2.6,
-      "teamRating": 2.40699,
-      "tier": 2,
-      "price": 4,
-      "logo": "https://picsum.photos/seed/p_rubber/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_sintra": {
-      "id": "p_sintra",
-      "name": "Sintra",
-      "team": "Mācekļi",
-      "premierRating": 16500,
-      "hltv": 1.06,
-      "kd": 1.02,
-      "adr": 84,
-      "hs": 42,
-      "pre3v3": 2.55,
-      "teamRating": 2.05964,
-      "tier": 2,
-      "price": 4,
-      "logo": "https://picsum.photos/seed/p_sintra/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_mvx": {
-      "id": "p_mvx",
-      "name": "MV",
-      "team": "Cotton Pickers",
-      "premierRating": 16000,
-      "hltv": 1.07,
-      "kd": 1.01,
-      "adr": 82,
-      "hs": 43,
-      "pre3v3": 2.44,
-      "teamRating": 2.48245,
-      "tier": 2,
-      "price": 4,
-      "logo": "https://picsum.photos/seed/p_mvx/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_sinay": {
-      "id": "p_sinay",
-      "name": "sinAy",
-      "team": "Turanskis",
-      "premierRating": 15500,
-      "hltv": 1.03,
-      "kd": 1.0,
-      "adr": 80,
-      "hs": 40,
-      "pre3v3": 2.22,
-      "teamRating": 2.40699,
-      "tier": 3,
-      "price": 2,
-      "logo": "https://picsum.photos/seed/p_sinay/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_cubons": {
-      "id": "p_cubons",
-      "name": "CUBONS",
-      "team": "9/11",
-      "premierRating": 15000,
-      "hltv": 1.02,
-      "kd": 0.99,
-      "adr": 79,
-      "hs": 41,
-      "pre3v3": 2.05,
-      "teamRating": 2.40029,
-      "tier": 3,
-      "price": 2,
-      "logo": "https://picsum.photos/seed/p_cubons/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_wide2": {
-      "id": "p_wide2",
-      "name": "wide2k",
-      "team": "Mācekļi",
-      "premierRating": 14500,
-      "hltv": 1.0,
-      "kd": 0.97,
-      "adr": 77,
-      "hs": 38,
-      "pre3v3": 2.1,
-      "teamRating": 2.05964,
-      "tier": 3,
-      "price": 2,
-      "logo": "https://picsum.photos/seed/p_wide2/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_decoy": {
-      "id": "p_decoy",
-      "name": "Decoy",
-      "team": "9/11",
-      "premierRating": 14000,
-      "hltv": 0.98,
-      "kd": 0.95,
-      "adr": 74,
-      "hs": 39,
-      "pre3v3": 1.92,
-      "teamRating": 2.40029,
-      "tier": 3,
-      "price": 2,
-      "logo": "https://picsum.photos/seed/p_decoy/400/220",
-      "stats": {
-        "points": 0,
-        "achievements": ""
-      }
-    },
-    "p_s1me": {
-      "id": "p_s1me",
+    "p2": {
+      "id": "p2",
       "name": "s1me",
       "team": "Holy Priests",
-      "premierRating": 12287,
+      "tier": 2,
+      "price": 4,
       "hltv": 1.09,
       "kd": 0.98,
       "adr": 81,
       "hs": 46,
-      "pre3v3": 2.145,
-      "teamRating": 2.47363,
-      "tier": 3,
-      "price": 2,
-      "logo": "https://picsum.photos/seed/p_s1me/400/220",
+      "premierRating": 12287,
+      "pre3v3": 2.14,
+      "teamRating": 2.47,
+      "logo": "https://picsum.photos/seed/p2/400/220",
+      "stats": {
+        "points": 0,
+        "achievements": ""
+      }
+    },
+    "p3": {
+      "id": "p3",
+      "name": "Kirbtich",
+      "team": "9/11",
+      "tier": 1,
+      "price": 6,
+      "hltv": 1.27,
+      "kd": 1.19,
+      "adr": 93,
+      "hs": 44,
+      "premierRating": 23500,
+      "pre3v3": 3.66,
+      "teamRating": 2.4,
+      "logo": "https://picsum.photos/seed/p3/400/220",
       "stats": {
         "points": 0,
         "achievements": ""
