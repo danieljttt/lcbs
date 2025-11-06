@@ -1,50 +1,57 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="lv">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>LCBS Fantasy</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LCBS Fantasy</title>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="firebase.js"></script>
 </head>
 <body>
 
+<header id="header">
+  <h1>LCBS Fantasy</h1>
+</header>
+
 <main id="content">
-  <section id="tab-home" class="tab active">
-    <h2>Sākums</h2>
-    <p class="note">Laipni lūdzam LCBS Fantasy!</p>
-    <div class="auth-box">
+  <section id="tab-home" class="tab">
+    <div id="authBox">
       <input id="uName" placeholder="lietotājvārds">
-      <input id="uPass" placeholder="parole" type="password">
+      <input id="uPass" type="password" placeholder="parole">
       <button id="btnReg">Reģistrēties</button>
       <button id="btnLogin">Pieteikties</button>
-      <button id="btnLogout" class="hide">Izrakstīties</button>
     </div>
-    <p>Likmju bilance: <b id="userBalanceBets">0</b> | Fantasy kredīti: <b id="userBalanceFantasy">0</b></p>
+    <div id="userBox" class="hide">
+      <span id="userLabel"></span>
+      <button id="btnLogout">Izrakstīties</button>
+    </div>
+    <div id="balancesBox">
+      <p>Likmju bilance: <b id="userBalanceBets">0</b></p>
+      <p>Fantasy kredīti: <b id="userBalanceFantasy">0</b></p>
+    </div>
   </section>
 
-  <section id="tab-fantasy" class="tab">
+  <section id="tab-fantasy" class="tab hide">
     <h2>Mana Fantasy komanda</h2>
-    <div id="myTeamBox"></div>
-    <h2>Pieejamie spēlētāji</h2>
-    <div id="allPlayersBox"></div>
+    <div id="fantasyTeam"></div>
+    <h3>Pieejamie spēlētāji</h3>
+    <div id="fantasyPlayers"></div>
   </section>
 
-  <section id="tab-bets" class="tab">
+  <section id="tab-bets" class="tab hide">
     <h2>Likmes</h2>
-    <div id="matchList" class="match-list"></div>
-    <h2>Rezultāti</h2>
-    <div id="resultList" class="match-list"></div>
+    <div id="matchesList"></div>
+    <h3>Rezultāti</h3>
+    <div id="resultsList"></div>
   </section>
 
-  <section id="tab-profile" class="tab">
+  <section id="tab-profile" class="tab hide">
     <h2>Profils</h2>
-    <div class="usercard">
-      <div>ID: <span id="meId">—</span></div>
-    </div>
+    <div id="adminPanel" class="hide"></div>
   </section>
 </main>
 
-<!-- Telegram-style bottom navigation -->
+<!-- Telegram style bottom navigation -->
 <nav class="bottom-nav">
   <button data-tab="home" class="active">
     <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V21H3V9.5z"/></svg>
@@ -64,35 +71,53 @@
   </button>
 </nav>
 
-<script type="module" src="firebase.js"></script>
 <script type="module">
-const $ = s=>document.querySelector(s);
-const $$ = s=>document.querySelectorAll(s);
+import { getCurrentUser, registerUser, loginUser, logoutUser, getUserBalances, refreshFantasy, renderAll, setInitialFantasyIfNeeded } from './firebase.js';
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 
 function showTab(name){
-  $$('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+name));
+  $$('.tab').forEach(t=>t.classList.toggle('hide',t.id!=='tab-'+name));
   $$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   localStorage.setItem('lcbs_tab',name);
 }
 $$('.bottom-nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 showTab(localStorage.getItem('lcbs_tab')||'home');
 
-// Fantasy kredītu atgriešana
-import { database, get, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-import { getCurrentUser, getFantasyPlayers } from './firebase.js';
-
-window.refundFantasy = async function(playerId){
-  const user = getCurrentUser();
-  if(!user) return;
-  const all = await getFantasyPlayers();
-  const p = all.find(x=>x.id===playerId);
-  if(!p) return;
-  const cost = p.price || (p.tier===1?6:p.tier===2?4:2);
-  const snap = await get(ref(database,`users/${user.id}/balances/balanceFantasy`));
-  const cur = snap.exists()?snap.val():0;
-  await update(ref(database,`users/${user.id}/balances`),{balanceFantasy:cur+cost});
-  alert(`Atgriezti ${cost} kredīti`);
+async function refreshAuthUI(){
+  const u=getCurrentUser();
+  $('#authBox').classList.toggle('hide',!!u);
+  $('#userBox').classList.toggle('hide',!u);
+  if(u){ $('#userLabel').textContent=u.username; }
 }
+async function refreshBalances(){
+  const u=getCurrentUser();
+  if(!u) return;
+  const b=await getUserBalances(u.id);
+  $('#userBalanceBets').textContent=b.balanceBets||0;
+  $('#userBalanceFantasy').textContent=b.balanceFantasy||0;
+}
+
+$('#btnReg').onclick = async ()=>{
+  const u=$('#uName').value.trim(), p=$('#uPass').value.trim();
+  if(!u||!p) return alert('Ievadi lietotājvārdu un paroli');
+  const ok=await registerUser(u,p);
+  if(ok){ refreshAuthUI(); await setInitialFantasyIfNeeded(); await refreshBalances(); renderAll(); }
+};
+$('#btnLogin').onclick = async ()=>{
+  const u=$('#uName').value.trim(), p=$('#uPass').value.trim();
+  const me=await loginUser(u,p);
+  if(me){ refreshAuthUI(); await setInitialFantasyIfNeeded(); await refreshBalances(); renderAll(); }
+};
+$('#btnLogout').onclick = async ()=>{
+  await logoutUser();
+  refreshAuthUI();
+  showTab('home');
+};
+
+refreshAuthUI();
+refreshBalances();
 </script>
 </body>
 </html>
